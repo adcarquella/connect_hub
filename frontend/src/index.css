@@ -1,0 +1,281 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Professional Dashboard Design System */
+@layer base {
+  :root {
+    /* Light theme variables */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    /* Card system - Light glass effect */
+    --card: 0 0% 100% / 0.8;
+    --card-foreground: 222.2 84% 4.9%;
+    --card-border: 177 52% 52% / 0.3;
+
+    /* Navigation - Light glass effect */
+    --nav-background: 0 0% 100% / 0.9;
+    --nav-foreground: 222.2 84% 4.9%;
+    --nav-hover: 177 52% 52% / 0.3;
+
+    /* Primary brand colors - Company teal */
+    --primary: 177 52% 42%;
+    --primary-foreground: 210 20% 98%;
+    --primary-hover: 177 52% 50%;
+    --primary-muted: 177 52% 42% / 0.15;
+
+    /* Secondary accent - Company blue-grey */
+    --secondary: 215 28% 26%;
+    --secondary-foreground: 210 20% 98%;
+    --secondary-hover: 215 28% 35%;
+    --secondary-muted: 215 28% 26% / 0.15;
+
+    /* Success/Error states */
+    --success: 142 76% 36%;
+    --success-foreground: 220 13% 9%;
+    --success-muted: 142 76% 36% / 0.15;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 20% 98%;
+    --warning-muted: 38 92% 50% / 0.15;
+
+    --destructive: 0 73% 57%;
+    --destructive-foreground: 210 20% 98%;
+    --destructive-muted: 0 73% 57% / 0.15;
+
+    /* Muted colors - Light */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    /* Accent colors - Light glass effect */
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+
+    /* Interactive elements - Light glass borders */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 177 52% 42%;
+
+    /* Layout */
+    --radius: 0.75rem;
+    --sidebar-width: 280px;
+    --header-height: 64px;
+
+    /* Gradients - Light glassmorphism */
+    --gradient-primary: linear-gradient(135deg, hsl(177 52% 42% / 0.8), hsl(215 28% 26% / 0.8));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100% / 0.6) 0%, hsl(0 0% 98% / 0.8) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(177 52% 42% / 0.1) 0%, hsl(215 28% 26% / 0.1) 100%);
+
+    /* Shadows - Light mode */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -2px hsl(0 0% 0% / 0.05);
+    --shadow-glow: 0 0 20px hsl(177 52% 42% / 0.3);
+    --shadow-glass: 0 8px 32px 0 hsl(0 0% 0% / 0.1);
+
+    /* Animations */
+    --transition-fast: all 0.15s ease-out;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Sidebar - Light theme */
+    --sidebar-background: 0 0% 100% / 0.9;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 177 52% 42%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 0 0% 0% / 0.05;
+    --sidebar-accent-foreground: 222.2 84% 4.9%;
+    --sidebar-border: 0 0% 0% / 0.1;
+    --sidebar-ring: 177 52% 42%;
+
+    /* Popover compatibility - Light glass effect */
+    --popover: 0 0% 100% / 0.9;
+    --popover-foreground: 222.2 84% 4.9%;
+  }
+
+  .dark {
+    /* Dark theme variables */
+    --background: 220 13% 12%;
+    --foreground: 210 20% 95%;
+
+    /* Card system - Glass effect */
+    --card: 220 13% 18% / 0.7;
+    --card-foreground: 210 20% 95%;
+    --card-border: 177 52% 52% / 0.5;
+
+    /* Navigation - Glass effect */
+    --nav-background: 220 13% 15% / 0.6;
+    --nav-foreground: 210 20% 90%;
+    --nav-hover: 177 52% 52% / 0.5;
+
+    /* Primary brand colors - Company teal */
+    --primary: 177 52% 52%;
+    --primary-foreground: 210 20% 98%;
+    --primary-hover: 177 52% 60%;
+    --primary-muted: 177 52% 52% / 0.15;
+
+    /* Secondary accent - Company blue-grey */
+    --secondary: 215 28% 36%;
+    --secondary-foreground: 210 20% 98%;
+    --secondary-hover: 215 28% 45%;
+    --secondary-muted: 215 28% 36% / 0.15;
+
+    /* Success/Error states */
+    --success: 174 49% 91%;
+    --success-foreground: 220 13% 9%;
+    --success-muted: 174 49% 91% / 0.15;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 20% 98%;
+    --warning-muted: 38 92% 50% / 0.15;
+
+    --destructive: 0 73% 57%;
+    --destructive-foreground: 210 20% 98%;
+    --destructive-muted: 0 73% 57% / 0.15;
+
+    /* Muted colors - Lighter */
+    --muted: 220 13% 20% / 0.5;
+    --muted-foreground: 210 11% 70%;
+
+    /* Accent colors - Glass effect */
+    --accent: 220 13% 20% / 0.5;
+    --accent-foreground: 210 20% 95%;
+
+    /* Interactive elements - Glass borders */
+    --border: 177 52% 52% / 0.8;
+    --input: 220 13% 18% / 0.6;
+    --ring: 177 52% 52%;
+
+    /* Layout */
+    --radius: 0.75rem;
+    --sidebar-width: 280px;
+    --header-height: 64px;
+
+    /* Gradients - Enhanced glassmorphism */
+    --gradient-primary: linear-gradient(135deg, hsl(177 52% 52% / 0.8), hsl(215 28% 36% / 0.8));
+    --gradient-card: linear-gradient(135deg, hsl(220 13% 18% / 0.4) 0%, hsl(220 13% 22% / 0.6) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(177 52% 52% / 0.15) 0%, hsl(215 28% 36% / 0.15) 100%);
+
+    /* Shadows - Enhanced for glass effect */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.15), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.15), 0 4px 6px -2px hsl(0 0% 0% / 0.1);
+    --shadow-glow: 0 0 20px hsl(177 52% 52% / 0.4);
+    --shadow-glass: 0 8px 32px 0 hsl(0 0% 0% / 0.37);
+
+    /* Animations */
+    --transition-fast: all 0.15s ease-out;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Sidebar - Updated for glass theme */
+    --sidebar-background: 220 13% 15% / 0.6;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 177 52% 52%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 255 255 255 / 0.08;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 255 255 255 / 0.1;
+    --sidebar-ring: 177 52% 52%;
+
+    /* Popover compatibility - Glass effect */
+    --popover: 220 13% 18% / 0.8;
+    --popover-foreground: 210 20% 95%;
+  }
+}
+
+/* Custom Components - Enhanced Glassmorphism */
+@layer components {
+  .dashboard-card {
+    background: var(--gradient-card);
+    border: 1px solid hsl(var(--card-border));
+    backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-glass);
+  }
+  
+  .nav-item {
+    transition: var(--transition-fast);
+    border-radius: 0.5rem;
+    backdrop-filter: blur(8px);
+  }
+  
+  .nav-item:hover {
+    background-color: hsl(var(--nav-hover));
+    backdrop-filter: blur(12px);
+  }
+  
+  .metric-card {
+    background: var(--gradient-card);
+    border: 1px solid hsl(var(--card-border));
+    backdrop-filter: blur(16px);
+    padding: 1.5rem;
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-glass);
+  }
+  
+  .metric-card:hover {
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    transform: translateY(-2px);
+    backdrop-filter: blur(20px);
+  }
+  
+  .gradient-text {
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+  
+  .glass-panel {
+    background: hsl(var(--card) / 0.6);
+    border: 1px solid hsl(var(--border));
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-glass);
+  }
+  
+  .glass-button {
+    background: hsl(var(--primary) / 0.1);
+    border: 1px solid hsl(var(--primary) / 0.2);
+    backdrop-filter: blur(8px);
+    transition: var(--transition-smooth);
+  }
+  
+  .glass-button:hover {
+    background: hsl(var(--primary) / 0.2);
+    backdrop-filter: blur(12px);
+  }
+  
+  /* Sidebar Animations */
+  .sidebar-toggle-btn {
+    transition: var(--transition-smooth);
+    transform-origin: center;
+  }
+  
+  .sidebar-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .sidebar-tooltip {
+    animation: fade-in 0.2s ease-out;
+  }
+  
+  .nav-item-icon {
+    transition: var(--transition-fast);
+  }
+  
+  .nav-item:hover .nav-item-icon {
+    transform: translateX(2px);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}

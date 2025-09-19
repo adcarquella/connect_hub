@@ -1,0 +1,33 @@
+name: Deploy Report App
+
+on:
+  push:
+    branches: [ "main" ]   # or whatever your deploy branch is
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy Frontend
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /var/www/connect_hub
+            git pull origin main
+            cd frontend
+            npm install
+            npm run build
+            cp -r build/* /var/www/report-frontend
+            cd /var/www/connect_hub
+            cd backend
+            npm install
+            pm2 restart report-api || pm2 start npm --name "report-api" -- start
+          EOF
