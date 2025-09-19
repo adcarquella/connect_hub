@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: |
-            frontend/build/**
+            frontend/dist/**
           target: "/var/www/connect_hub/"
 
       # ==== DEPLOY BACKEND ====
