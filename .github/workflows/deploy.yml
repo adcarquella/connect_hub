@@ -1,33 +1,68 @@
-name: Deploy Report App
+name: Deploy Node API to Ubuntu Server
 
 on:
   push:
-    branches: [ "main" ]   # or whatever your deploy branch is
+    branches:
+      - main  # Change this if you deploy from another branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
+      #==== FRONTEND BUILD ====
+      - name: Install frontend dependencies
+        run: npm ci --legacy-peer-deps --force
+        working-directory: frontend
 
-      - name: Deploy Frontend
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd /var/www/connect_hub
-            git pull origin main
-            cd frontend
-            npm install
-            npm run build
-            cp -r build/* /var/www/report-frontend
-            cd /var/www/connect_hub
-            cd backend
-            npm install
-            pm2 restart report-api || pm2 start npm --name "report-api" -- start
-          EOF
+      - name: Build React frontend
+        run: CI=false npm run build
+        working-directory: frontend
+
+      # ==== DEPLOY FRONTEND ====
+      - name: Upload frontend build to server
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: |
+            frontend/build/**
+          target: "/var/www/connect_hub/"
+
+      # ==== DEPLOY BACKEND ====
+      - name: Upload backend API source code to server
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: |
+            backend/**
+          target: "/var/www/connect_hub/"
+
+      # ==== INSTALL BACKEND DEPENDENCIES + PM2 RESTART ====
+      - name: SSH into server, install backend deps, and reload PM2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /var/www/connect_hub/backend/
+            npm ci --legacy-peer-deps --force
+
+            if pm2 describe hubapi > /dev/null; then
+              echo "Reloading existing PM2 process..."
+              pm2 reload hubapi
+            else
+              echo "Starting new PM2 process..."
+              pm2 start server.js --name "hubapi"
+            fi
+
+            pm2 save
+
+
