@@ -13,7 +13,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      
+      #==== FRONTEND BUILD ====
+      - name: Install frontend dependencies
+        run: npm ci --legacy-peer-deps --force
+        working-directory: frontend
+
+      - name: Build React frontend
+        run: CI=false npm run build
+        working-directory: frontend
+
+      # ==== DEPLOY FRONTEND ====
+      - name: Upload frontend build to server
+        uses: appleboy/scp-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: |
+            frontend/dist/**
+          target: "/var/www/connect_hub/"
+
       # ==== DEPLOY BACKEND ====
       - name: Upload backend API source code to server
         uses: appleboy/scp-action@v0.1.6
