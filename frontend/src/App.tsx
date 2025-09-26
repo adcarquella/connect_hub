@@ -22,6 +22,7 @@ import Devices from "./pages/Devices";
 import NotFound from "./pages/NotFound";
 import CarePlan from "./pages/CarePlan";
 import Examples from "./pages/Examples";
+import { LiveCalls } from "./pages/LiveCalls";
 
 const queryClient = new QueryClient();
 
@@ -50,7 +51,7 @@ const App = () => (
               <Route path="/style" element={<Style />} />
               <Route path="/care-plan" element={<CarePlan />} />
               <Route path="/examples" element={<Examples />} />
-              
+              <Route path="/live-calls" element={<LiveCalls />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

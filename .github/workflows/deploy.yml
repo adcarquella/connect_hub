@@ -54,7 +54,7 @@ jobs:
           script: |
             cd /var/www/connect_hub/backend/
             npm ci --legacy-peer-deps --force
-
+            
             if pm2 describe hubapi > /dev/null; then
               echo "Reloading existing PM2 process..."
               pm2 reload hubapi

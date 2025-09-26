@@ -2,23 +2,27 @@ import { MetricCard } from "@/components/dashboard/MetricCard";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { 
-  TrendingUp, 
-  Users, 
-  FileText, 
+import {
+  TrendingUp,
+  Users,
+  FileText,
   DollarSign,
   Activity,
+  Phone,
   Clock
 } from "lucide-react";
+
+import {sendEncryptedData} from "../api/apiClient";
+import { useEffect } from "react";
 
 const Dashboard = () => {
   const metrics = [
     {
       title: "Total Calls",
-      value: "$127,430",
+      value: "18,430",
       change: "+12.5%",
       changeType: "positive" as const,
-      icon: DollarSign,
+      icon: Phone,
     },
     {
       title: "Active Clients",
@@ -50,13 +54,48 @@ const Dashboard = () => {
     { id: 4, client: "Innovation Labs", action: "Report shared", time: "2 hours ago" },
   ];
 
-  const nurseCallData = [
+  const nurseCallDatas = [
     { type: "Esmere", calls: 124, avgTime: 3.2 },
     { type: "Tranby", calls: 18, avgTime: 1.8 },
     { type: "Nyton", calls: 32, avgTime: 4.1 },
     { type: "Another", calls: 45, avgTime: 2.9 },
     { type: "Arquella", calls: 29, avgTime: 3.7 },
   ];
+
+  const nurseCallData = [
+    {
+      "SiteID": 163,
+      "SiteName": "Beech Lodge",
+      "CallCount": 5111
+    },
+    {
+      "SiteID": 39,
+      "SiteName": "Cox Bench",
+      "CallCount": 2352
+    },
+    {
+      "SiteID": 47,
+      "SiteName": "Lindsey Hall",
+      "CallCount": 4807
+    },
+    {
+      "SiteID": 187,
+      "SiteName": "Mere Hall",
+      "CallCount": 5103
+    },
+    {
+      "SiteID": 105,
+      "SiteName": "Sense Test",
+      "CallCount": 340
+    }
+  ]
+
+
+  useEffect(()=>{
+
+    sendEncryptedData("dashboard/summary", {}).then(d=>{console.log(d)}).catch(e=>{console.log(e)});
+
+  }, [1===1]);
 
   return (
     <DashboardLayout>
@@ -85,34 +124,36 @@ const Dashboard = () => {
                   <TrendingUp className="h-5 w-5 text-secondary" />
                 </div>
                 <h2 className="text-xl font-semibold text-card-foreground">
-                  Performance Overview
+                  Site Calls
                 </h2>
               </div>
-              
-              <div className="h-64 p-4">
+
+              <div className="h-64 p-4 overflow-y-auto">
                 <div className="space-y-4">
                   {nurseCallData.map((item, index) => {
-                    const maxCalls = Math.max(...nurseCallData.map(d => d.calls));
-                    const percentage = (item.calls / maxCalls) * 100;
-                    
+                    const maxCalls = Math.max(...nurseCallData.map(d => d.CallCount));
+                    const percentage = (item.CallCount / maxCalls) * 100;
+
                     return (
                       <div key={index} className="flex items-center gap-4">
                         <div className="w-20 text-sm font-medium text-right">
-                          {item.type}
+                          {item.SiteName}
                         </div>
                         <div className="flex-1 bg-muted rounded-full h-6 relative">
-                          <div 
+                          <div
                             className="bg-primary h-full rounded-full flex items-center justify-end pr-2"
                             style={{ width: `${percentage}%` }}
                           >
                             <span className="text-xs text-primary-foreground font-medium">
-                              {item.calls}
+                              {item.CallCount}
                             </span>
                           </div>
                         </div>
+                        {/*
                         <div className="text-xs text-muted-foreground w-16">
                           {item.avgTime}min avg
                         </div>
+                        */}
                       </div>
                     );
                   })}
