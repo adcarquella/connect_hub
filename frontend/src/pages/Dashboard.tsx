@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { useToast } from "@/hooks/use-toast";
 import {
   TrendingUp,
   Users,
@@ -16,6 +18,40 @@ import {sendEncryptedData} from "../api/apiClient";
 import { useEffect } from "react";
 
 const Dashboard = () => {
+  
+  const { toast } = useToast();
+
+  const [nurseCallData, setNurseCallData] = useState([])
+  /*
+  = [
+    {
+      "SiteID": 163,
+      "SiteName": "Beech Lodge",
+      "CallCount": 5111
+    },
+    {
+      "SiteID": 39,
+      "SiteName": "Cox Bench",
+      "CallCount": 2352
+    },
+    {
+      "SiteID": 47,
+      "SiteName": "Lindsey Hall",
+      "CallCount": 4807
+    },
+    {
+      "SiteID": 187,
+      "SiteName": "Mere Hall",
+      "CallCount": 5103
+    },
+    {
+      "SiteID": 105,
+      "SiteName": "Sense Test",
+      "CallCount": 340
+    }
+  ]
+*/
+
   const metrics = [
     {
       title: "Total Calls",
@@ -54,46 +90,22 @@ const Dashboard = () => {
     { id: 4, client: "Innovation Labs", action: "Report shared", time: "2 hours ago" },
   ];
 
-  const nurseCallDatas = [
-    { type: "Esmere", calls: 124, avgTime: 3.2 },
-    { type: "Tranby", calls: 18, avgTime: 1.8 },
-    { type: "Nyton", calls: 32, avgTime: 4.1 },
-    { type: "Another", calls: 45, avgTime: 2.9 },
-    { type: "Arquella", calls: 29, avgTime: 3.7 },
-  ];
-
-  const nurseCallData = [
-    {
-      "SiteID": 163,
-      "SiteName": "Beech Lodge",
-      "CallCount": 5111
-    },
-    {
-      "SiteID": 39,
-      "SiteName": "Cox Bench",
-      "CallCount": 2352
-    },
-    {
-      "SiteID": 47,
-      "SiteName": "Lindsey Hall",
-      "CallCount": 4807
-    },
-    {
-      "SiteID": 187,
-      "SiteName": "Mere Hall",
-      "CallCount": 5103
-    },
-    {
-      "SiteID": 105,
-      "SiteName": "Sense Test",
-      "CallCount": 340
-    }
-  ]
-
+  
 
   useEffect(()=>{
 
-    sendEncryptedData("dashboard/summary", {}).then(d=>{console.log(d)}).catch(e=>{console.log(e)});
+    sendEncryptedData("dashboard/summary", {}).then(d=>{
+      
+      console.log(d)
+    
+    }).catch(e=>{
+        toast({
+      title: "Dashboard Error",
+      description: e.toString(),
+    });  
+      console.log(e)
+    }
+    );
 
   }, [1===1]);
 
