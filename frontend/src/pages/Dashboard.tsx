@@ -14,37 +14,17 @@ import {
   Clock
 } from "lucide-react";
 
-import {sendEncryptedData} from "../api/apiClient";
+import { sendEncryptedData } from "../api/apiClient";
 import { useEffect } from "react";
 
+
 const Dashboard = () => {
-  
+
   const { toast } = useToast();
 
   const [nurseCallData, setNurseCallData] = useState([])
-  /*
-  = [
-    {
-      "SiteID": 163,
-      "SiteName": "Beech Lodge",
-      "CallCount": 5111
-    },
-    {
-      "SiteID": 39,
-      "SiteName": "Cox Bench",
-      "CallCount": 2352
-    },
-    {
-      "SiteID": 47,
-      "SiteName": "Lindsey Hall",
-      "CallCount": 4807
-    },
-    {
-      "SiteID": 187,
-      "SiteName": "Mere Hall",
-      "CallCount": 5103
-    },
-    {
+  /*[
+  {
       "SiteID": 105,
       "SiteName": "Sense Test",
       "CallCount": 340
@@ -52,7 +32,7 @@ const Dashboard = () => {
   ]
 */
 
-  const metrics = [
+  const [metrics, setMetrics] = useState([
     {
       title: "Total Calls",
       value: "18,430",
@@ -61,27 +41,27 @@ const Dashboard = () => {
       icon: Phone,
     },
     {
-      title: "Active Clients",
-      value: "1,429",
-      change: "+8.2%",
+      title: "",
+      value: "",
+      change: "",
       changeType: "positive" as const,
       icon: Users,
     },
     {
-      title: "Reports Generated",
-      value: "342",
-      change: "+23.1%",
+      title: "",
+      value: "",
+      change: "", //+23.1%
       changeType: "positive" as const,
       icon: FileText,
     },
     {
-      title: "Avg. Response Time",
-      value: "2.4h",
-      change: "-15.3%",
+      title: "",
+      value: "",
+      change: "",
       changeType: "positive" as const,
       icon: Clock,
     },
-  ];
+  ]);
 
   const recentActivity = [
     { id: 1, client: "Acme Corp", action: "Generated Q4 Report", time: "2 minutes ago" },
@@ -90,24 +70,100 @@ const Dashboard = () => {
     { id: 4, client: "Innovation Labs", action: "Report shared", time: "2 hours ago" },
   ];
 
-  
 
-  useEffect(()=>{
 
-    sendEncryptedData("dashboard/summary", {}).then(d=>{
+  useEffect(() => {
+
+    sendEncryptedData("dashboard/summary", {}).then(d => {
+
+      if (d.TotalCalls) setNurseCallData(d.TotalCalls);
       
-      console.log(d)
-    
-    }).catch(e=>{
-        toast({
-      title: "Dashboard Error",
-      description: e.toString(),
-    });  
+      if (d.CallsBreakdown) {
+
+        function getCallData(callObject, callType) {
+          const callArray = callObject[callType];
+          if (!callArray) return ["", ""];
+          let current = 0;
+          let previous = 0;
+
+          callArray.forEach(callData => {
+            current += parseInt(callData.current_month_calls);
+            previous += parseInt(callData.previous_month_calls);
+          });
+          return [current, previous];
+        }
+
+        function getPercentageChange(previous, current) {
+          if (previous === 0) {
+            // Avoid division by zero
+            return current === 0 ? '0%' : '+100%';
+          }
+          
+          const change = ((current - previous) / previous) * 100;
+          const sign = change >= 0 ? '+' : ''; // Add '+' for positive change
+          return `${sign}${change.toFixed(1)}%`; // Round to 1 decimal place
+        }
+
+        const grouped = d.CallsBreakdown.reduce((acc, item) => {
+          const key = item.call_type;
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(item);
+          return acc;
+        }, {});
+        console.log(grouped);
+
+        const [emergencyCurrent, emergencyPrevious] = getCallData(grouped, "Emergency");
+        const [fallCurrent, fallPrevious] = getCallData(grouped, "Fall");
+        const [senseCurrent, sensePrevious] = getCallData(grouped, "Sense");
+
+        function getPositiveNegative(previous, current){
+          if (previous > current) return "negative";
+          return "positive";
+        }
+
+        
+        setMetrics(
+
+          [
+            {
+              title: "Total Calls",
+              value: "18,430",
+              change: "+12.5%",
+              changeType: "positive" as const,
+              icon: Phone,
+            },
+            {
+              title: "Emergency Calls",
+              value: emergencyCurrent.toString(),
+              change: getPercentageChange(emergencyPrevious, emergencyCurrent),
+              changeType: getPositiveNegative(emergencyCurrent, ).toString() as const,
+              icon: Users,
+            },
+            {
+              title: "Fall",
+              value: fallCurrent.toString(),
+              change: getPercentageChange(fallPrevious, fallCurrent), //+23.1%
+              changeType: getPositiveNegative(fallCurrent, fallPrevious).toString() as const,
+              icon: FileText,
+            },
+            {
+              title: "Sense",
+              value: senseCurrent.toString(),
+              change: getPercentageChange(sensePrevious, senseCurrent), //+23.1%
+              changeType: getPositiveNegative(senseCurrent, sensePrevious).toString() as const,
+              icon: FileText,
+            },
+          ]
+        )
+      }
+
+    }).catch(e => {
+      toast({ title: "Dashboard Error", description: e.toString() });
       console.log(e)
     }
     );
 
-  }, [1===1]);
+  }, [1 === 1]);
 
   return (
     <DashboardLayout>
@@ -178,21 +234,23 @@ const Dashboard = () => {
             {/* Recent Activity */}
             <div className="dashboard-card rounded-lg p-6">
               <h3 className="text-lg font-semibold text-card-foreground mb-4">
-                Recent Activity
+
               </h3>
               <div className="space-y-4">
+                
                 {recentActivity.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-3">
                     <div className="h-2 w-2 rounded-full bg-primary mt-2" />
                     <div className="flex-1">
+                      
                       <p className="text-sm font-medium text-card-foreground">
-                        {activity.client}
+
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {activity.action}
+
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {activity.time}
+
                       </p>
                     </div>
                   </div>

@@ -50,7 +50,7 @@ const navigation = [
 ];
 
 const systemStatus = [
-  { 
+  /*{ 
     label: "System Status", 
     value: "Online", 
     icon: Wifi, 
@@ -63,11 +63,11 @@ const systemStatus = [
     icon: Router, 
     status: "success",
     showBadge: false 
-  },
+  },*/
 ];
 
 const notifications = [
-  {
+  /*{
     id: 1,
     type: "Emergency Call",
     location: "Room 124A",
@@ -90,10 +90,11 @@ const notifications = [
     time: "8 minutes ago",
     priority: "low",
     patient: "Ms. Davis"
-  }
+  }*/
 ];
 
 export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse }: SidebarProps) => {
+  
   const location = useLocation();
 
   return (
@@ -285,6 +286,7 @@ const SidebarContent = ({ currentPath, showCloseButton, onClose, isCollapsed = f
             {/* Call Bell Notifications */}
             <Popover open={notificationsOpen} onOpenChange={setNotificationsOpen}>
               <PopoverTrigger asChild>
+                {/*}
                 <button 
                   className={cn(
                     "flex items-center gap-3 text-sm w-full hover:bg-nav-hover rounded-lg p-2 transition-colors",
@@ -306,6 +308,7 @@ const SidebarContent = ({ currentPath, showCloseButton, onClose, isCollapsed = f
                     </>
                   )}
                 </button>
+                */}
               </PopoverTrigger>
               <PopoverContent 
                 className="w-80 p-0" 

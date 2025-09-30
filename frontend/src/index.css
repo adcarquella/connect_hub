@@ -44,6 +44,10 @@
     --destructive-foreground: 210 20% 98%;
     --destructive-muted: 0 73% 57% / 0.15;
 
+    --attendance: 0 73% 57%;
+    --attendance-foreground: 210 20% 98%;
+    --attendance-muted: 0 73% 57% / 0.15;
+
     /* Muted colors - Light */
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
@@ -133,6 +137,10 @@
     --destructive: 0 73% 57%;
     --destructive-foreground: 210 20% 98%;
     --destructive-muted: 0 73% 57% / 0.15;
+
+    --attendance: 0 73% 57%;
+    --attendance-foreground: 210 20% 98%;
+    --attendance-muted: 0 73% 57% / 0.15;
 
     /* Muted colors - Lighter */
     --muted: 220 13% 20% / 0.5;

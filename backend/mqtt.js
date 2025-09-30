@@ -6,7 +6,7 @@ const mqtt = require("mqtt");
 
 //const topic = "#";
 
-const topic = "/devices/presence_sensor_fp2_8b53/#"
+const topic = "#"
 //const topic = "/devices/presence_sensor_fp2_8b53/events/"
 const brokerUrl = 'mqtt://mqtt.arquel.la:8883';
 const options = {

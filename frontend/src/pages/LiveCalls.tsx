@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { useSiteWebSocket } from "../hooks/useSiteWebSocket";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Phone, 
-  MapPin, 
-  Clock, 
-  AlertTriangle, 
-  User, 
+import {
+  Phone,
+  MapPin,
+  Clock,
+  AlertTriangle,
+  User,
   Activity,
   Bed,
   Armchair,
@@ -18,43 +19,9 @@ import {
   Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SiteFeed } from "@/components/SiteFeed";
 
-// Mock data for active calls
-const activeCalls = [
-  {
-    id: 1,
-    type: "Emergency Call",
-    resident: "Mrs. Johnson",
-    room: "124A",
-    location: "Bathroom",
-    priority: "high",
-    duration: "2:15",
-    status: "active",
-    timestamp: new Date(Date.now() - 2 * 60 * 1000)
-  },
-  {
-    id: 2,
-    type: "Nurse Call",
-    resident: "Mr. Williams", 
-    room: "108B",
-    location: "Bedside",
-    priority: "medium",
-    duration: "5:32",
-    status: "pending",
-    timestamp: new Date(Date.now() - 5 * 60 * 1000)
-  },
-  {
-    id: 3,
-    type: "Bathroom Assist",
-    resident: "Ms. Davis",
-    room: "203C", 
-    location: "Bed",
-    priority: "low",
-    duration: "8:45",
-    status: "assigned",
-    timestamp: new Date(Date.now() - 8 * 60 * 1000)
-  }
-];
+
 
 // Mock data for device status
 const deviceStatuses = [
@@ -70,7 +37,7 @@ const deviceStatuses = [
   {
     id: 2,
     resident: "Mr. Williams",
-    room: "108B", 
+    room: "108B",
     status: "in_bed",
     location: "bedroom",
     lastUpdate: new Date(Date.now() - 3 * 60 * 1000),
@@ -81,7 +48,7 @@ const deviceStatuses = [
     resident: "Ms. Davis",
     room: "203C",
     status: "in_chair",
-    location: "living_area", 
+    location: "living_area",
     lastUpdate: new Date(Date.now() - 2 * 60 * 1000),
     batteryLevel: 76
   },
@@ -140,7 +107,7 @@ const getStatusColor = (status: string) => {
       return "bg-red-500";
     case "fall_risk":
     case "warning":
-      return "bg-orange-500"; 
+      return "bg-orange-500";
     case "call":
       return "bg-blue-500";
     case "active":
@@ -163,21 +130,127 @@ const getPriorityBadge = (priority: string) => {
   }
 };
 
-const getStatusBadge = (status: string) => {
+const getCallTypeBadge = (status: string) => {
   switch (status) {
-    case "active":
-      return <Badge variant="destructive">Active</Badge>;
-    case "pending":
-      return <Badge variant="default">Pending</Badge>;
-    case "assigned":
-      return <Badge variant="secondary">Assigned</Badge>;
+    case "Attendance":
+      return <Badge variant="attendance">{status}</Badge>;
+    case "call":
+      return <Badge variant="call">Pending</Badge>;
+    case "emergency":
+      return <Badge variant="emergency">Assigned</Badge>;
+    case "accessory":
+      return <Badge variant="accessory">Active</Badge>;
+    case "sense":
+      return <Badge variant="sense">Pending</Badge>;
     default:
-      return <Badge variant="outline">Unknown</Badge>;
+      return <Badge variant="outline">{status}</Badge>;
   }
 };
 
+
+
+
+
+
+
 export const LiveCalls = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [username, setUsername] = useState<string>("alice");
+  const [sitecode, setSitecode] = useState<string>("SITE123");
+  const { messages } = useSiteWebSocket(username, sitecode);
+
+  // Mock data for active calls
+  const [activeCalls, setActiveCalls] = useState([
+    {
+      id: 1,
+      type: "Emergency Call",
+      resident: "Mrs. Johnson",
+      room: "124A",
+      location: "Bathroom",
+      priority: "high",
+      duration: "2:15",
+      status: "active",
+      timestamp: new Date(Date.now() - 2 * 60 * 1000)
+    },
+    {
+      id: 2,
+      type: "Nurse Call",
+      resident: "Mr. Williams",
+      room: "108B",
+      location: "Bedside",
+      priority: "medium",
+      duration: "5:32",
+      status: "pending",
+      timestamp: new Date(Date.now() - 5 * 60 * 1000)
+    },
+    {
+      id: 3,
+      type: "Bathroom Assist",
+      resident: "Ms. Davis",
+      room: "203C",
+      location: "Bed",
+      priority: "low",
+      duration: "8:45",
+      status: "assigned",
+      timestamp: new Date(Date.now() - 8 * 60 * 1000)
+    }
+  ]);
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    const latestMessage = messages[messages.length - 1];
+    console.log(latestMessage);
+    if (!latestMessage.update) return;
+    const update = latestMessage.update;
+    if (update.liveCalls) {
+
+      /*
+      const arr = Object.entries(update.liveCalls).map(([key, value]) => ({
+        id: key,
+        ...value,
+      }));
+      
+      }
+      */
+
+const obj: Record<string, CallData> = {
+  "002": {
+    AccessoryType: "",
+    aqRef: "MainPanel15435100254351",
+    batteryLevel: "No Data",
+    beaconId: "ground floor",
+    callType: "Attendance",
+    carer: "Room Unit",
+    duration: "Live",
+    end: "Live",
+    journeyRef: "jrny_MainPanel15435100254351",
+    locTx: "002.5",
+    panelRef: "Main Panel",
+    room: "unit 2",
+    start: "2025-09-30 14:43:51.626651Z",
+    startFullDate: "15:43:51",
+    txCode: "002.5",
+    unitId: "002.5",
+    zone: "ground floor",
+  },
+};
+
+
+// Convert to array, preserving the key
+const arr = Object.entries(obj).map(([key, value]) => ({
+  id: key,
+  ...value,
+}));
+  console.log(arr);
+      setActiveCalls(arr);
+
+    }
+
+    //{messages.map((msg: SiteMessage, i: number) => (
+    //))}
+
+  }, [messages]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -188,10 +261,16 @@ export const LiveCalls = () => {
   }, []);
 
   const formatDuration = (timestamp: Date) => {
-    const diff = Math.floor((currentTime.getTime() - timestamp.getTime()) / 1000);
-    const minutes = Math.floor(diff / 60);
-    const seconds = diff % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    try {
+      const diff = Math.floor((currentTime.getTime() - timestamp.getTime()) / 1000);
+      const minutes = Math.floor(diff / 60);
+      const seconds = diff % 60;
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+    catch(e){
+      return `00:00}`;
+    }
+    
   };
 
   return (
@@ -210,7 +289,8 @@ export const LiveCalls = () => {
             <span>Last updated: {currentTime.toLocaleTimeString()}</span>
           </div>
         </div>
-
+        {//<SiteFeed />
+        }
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
@@ -287,27 +367,35 @@ export const LiveCalls = () => {
             <CardContent className="space-y-4">
               {activeCalls.map((call) => (
                 <div key={call.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                  
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{call.resident}</span>
+                      
+                      <span className="font-medium">{call.room}</span>
                       {getPriorityBadge(call.priority)}
-                      {getStatusBadge(call.status)}
+                      {getCallTypeBadge(call.callType)}
                     </div>
+                    
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
-                        {call.room} - {call.location}
+                        {call.room} - {call.zone}
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {formatDuration(call.timestamp)}
+                        {formatDuration(call.start)}
                       </span>
                     </div>
-                    <div className="text-sm font-medium">{call.type}</div>
+                    
+                    <div className="text-sm font-medium">{call.callType}</div>
                   </div>
+                  {/*
+                  accept call button
                   <Button size="sm" variant={call.priority === "high" ? "destructive" : "default"}>
                     Respond
                   </Button>
+                  */}
+                  
                 </div>
               ))}
               {activeCalls.length === 0 && (
@@ -362,6 +450,7 @@ export const LiveCalls = () => {
             <CardDescription>Real-time view of facility layout and room statuses</CardDescription>
           </CardHeader>
           <CardContent>
+            {/*}
              <iframe 
                 title="MoveLiveView" 
                 id="iiwariframe" 
@@ -369,10 +458,38 @@ export const LiveCalls = () => {
                 style={{height: "80vh", width: "1200px"}}
                 //style="margin-left: 2.5%; margin-top: 10px; align-self: center; height: 80vh; width: 1200px; margin-right: 10px;"
                 ></iframe>
-
+*/}
           </CardContent>
         </Card>
       </div>
     </DashboardLayout>
   );
+};
+
+interface SiteMessage {
+  message?: string;
+  error?: string;
+  sitecode?: string;
+  update?: string;
+}
+
+
+      type CallData = {
+  AccessoryType: string;
+  aqRef: string;
+  batteryLevel: string;
+  beaconId: string;
+  callType: string;
+  carer: string;
+  duration: string;
+  end: string;
+  journeyRef: string;
+  locTx: string;
+  panelRef: string;
+  room: string;
+  start: string;
+  startFullDate: string;
+  txCode: string;
+  unitId: string;
+  zone: string;
 };

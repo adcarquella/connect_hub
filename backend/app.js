@@ -1,42 +1,26 @@
-// src/app.js
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const bodyParser = require('body-parser');
-const crypto = require('crypto');
-const { auth } = require('express-oauth2-jwt-bearer');
-const { getDashboardSummary } = require('./routes/dashboard/dashboardSummary');
 const cors = require('cors');
+const crypto = require('crypto');
+const { getDashboardSummary } = require('./routes/dashboard/dashboardSummary');
+const { setupWebSocketServer } = require('./websockets/websocket');
 
 const app = express();
 
+// Middleware
 app.use(bodyParser.json({ limit: '1mb' }));
-
-
-// before your routes
 app.use(cors({
-  origin: process.env.CLIENT_URL || '*', // or specify: "http://localhost:5173"
+  origin: process.env.CLIENT_URL || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-
-const { AUTH0_DOMAIN, AUTH0_AUDIENCE, ENCRYPTION_KEY_BASE64 } = process.env;
-
+// Example AES helpers
+const { ENCRYPTION_KEY_BASE64 } = process.env;
 const ENCRYPTION_KEY = Buffer.from(ENCRYPTION_KEY_BASE64, 'base64');
 
-// ---------- Auth0 middleware ----------
-// For testing, you can skip it or mock it
-/*
-const checkJwt = auth({
-  audience: AUTH0_AUDIENCE,
-  issuerBaseURL: AUTH0_DOMAIN,
-});
-*/
-// Use checkJwt for any API routes 
-// //app.use('/api', checkJwt); 
-// //put this back in when ready for auth0
-
-// AES-256-GCM helpers (same as your code)
 function encryptPayload(plainText) {
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv('aes-256-gcm', ENCRYPTION_KEY, iv);
@@ -56,16 +40,11 @@ function decryptPayload(base64Payload) {
   return decrypted.toString('utf8');
 }
 
-// routes
+// Routes
 app.get("/api/hello", (req, res) => res.json({ message: "Hello World" }));
-
-
 app.post("/dashboard/summary", getDashboardSummary);
 
-
-
-
-app.post("/api/data", async (req, res) => {
+app.post("/api/data", (req, res) => {
   try {
     const { payload } = req.body;
     if (!payload) return res.status(400).json({ error: "Missing payload" });
@@ -79,11 +58,12 @@ app.post("/api/data", async (req, res) => {
   }
 });
 
-// Start server only if run directly
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
+// Create HTTP server and attach WebSocket
+const server = http.createServer(app);
+setupWebSocketServer(server);
 
+// Start server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 module.exports = { app, encryptPayload, decryptPayload };

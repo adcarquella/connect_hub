@@ -11,8 +11,11 @@ export async function sendEncryptedData(apiPath:string, data: object) {
 
   const res = await axios.post(`${API_BASE}/${apiPath}`, { payload: encrypted });
 
-  const decryptedResponse = decryptPayload(res.data.payload, ENCRYPTION_KEY_BASE64);
-  return JSON.parse(decryptedResponse);
+  //const decryptedResponse = decryptPayload(res.data.payload, ENCRYPTION_KEY_BASE64);
+  console.log(res.data);
+  const decryptedResponse = res.data;
+  console.log(decryptedResponse)
+  return decryptedResponse;
 }
 
 export async function getHello() {
