@@ -157,7 +157,7 @@ export const LiveCalls = () => {
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [username, setUsername] = useState<string>("alice");
-  const [sitecode, setSitecode] = useState<string>("SITE123");
+  const [sitecode, setSitecode] = useState<string>("sensetest");
   const { messages } = useSiteWebSocket(username, sitecode);
   const [activeCalls, setActiveCalls] = useState<ActiveCall[]>([]);
 
@@ -175,6 +175,7 @@ export const LiveCalls = () => {
 
 
   useEffect(() => {
+    console.log(messages);
     if (messages.length === 0) return;
 
     const raw = messages.at(-1);
@@ -194,7 +195,7 @@ export const LiveCalls = () => {
       .map(([id, call]) => normalizeCall(id, call));
 
     setActiveCalls(arr);
-  }, [messages, normalizeCall]);
+  }, [messages]);
 
   const formatDuration = (timestamp: Date) => {
     try {
@@ -386,7 +387,7 @@ export const LiveCalls = () => {
             <CardDescription>Real-time view of facility layout and room statuses</CardDescription>
           </CardHeader>
           <CardContent>
-            {/*}
+{/*}
              <iframe 
                 title="MoveLiveView" 
                 id="iiwariframe" 

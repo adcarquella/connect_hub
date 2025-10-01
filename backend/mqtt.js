@@ -10,7 +10,7 @@ const topic = "#"
 //const topic = "/devices/presence_sensor_fp2_8b53/events/"
 const brokerUrl = 'mqtt://mqtt.arquel.la:8883';
 const options = {
-  clientId: 'mqttx_819af243',
+  clientId: 'mqttx_819af243_connect_hub_api',
   username: 'vayyar',
   password: 'Arquella',
   clean: true
@@ -35,8 +35,16 @@ client.on("connect", () => {
 
 // Listen for messages
 client.on("message", (receivedTopic, message) => {
-    console.log(message.toString());
-    //console.log(`Message received on ${receivedTopic}: ${message.toString()}`);
+  //console.log(receivedTopic);
+  const device = receivedTopic.split("/");
+  
+  console.log(device[2]);
+
+
+
+  //`devices/presence_sensor_fp2_8b53
+  //console.log(JSON.parse(message.toString()));
+  //console.log(`Message received on ${receivedTopic}: ${message.toString()}`);
 });
 
 // Handle errors

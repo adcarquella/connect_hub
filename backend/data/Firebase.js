@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const serviceAccount = require('./service_account.json');
+const serviceAccount = require('./arquella-cc76e-firebase-adminsdk-tonpm-ff715ebc64.json');
 
 const apps = {}; // Map of database URLs to Firebase apps
 
@@ -12,7 +12,7 @@ function getFirebaseApp(databaseURL) {
   if (apps[databaseURL]) {
     return apps[databaseURL];
   }
-
+  console.log(databaseURL);
   const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: databaseURL

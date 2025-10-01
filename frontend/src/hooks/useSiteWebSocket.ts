@@ -9,6 +9,29 @@ export  interface SiteMessage {
     liveCalls?: Record<string, CallData>; // or CallData[], depending on backend
   };
 }
+
+
+// Backend shape
+export type CallData = {
+  AccessoryType: string;
+  aqRef: string;
+  batteryLevel: string;
+  beaconId: string;
+  callType: string;
+  carer: string;
+  duration: string;
+  end: string;
+  journeyRef: string;
+  locTx: string;
+  panelRef: string;
+  room: string;
+  start: string;
+  startFullDate: string;
+  txCode: string;
+  unitId: string;
+  zone: string;
+};
+
 interface UseSiteWebSocketResult {
   messages: SiteMessage[];
 }
