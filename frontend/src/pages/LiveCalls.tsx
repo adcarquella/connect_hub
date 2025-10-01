@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { useSiteWebSocket } from "../hooks/useSiteWebSocket";
+import { useSiteWebSocket, SiteMessage, CallData } from "../hooks/useSiteWebSocket";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -154,111 +154,47 @@ const getCallTypeBadge = (status: string) => {
 
 
 export const LiveCalls = () => {
+
   const [currentTime, setCurrentTime] = useState(new Date());
   const [username, setUsername] = useState<string>("alice");
   const [sitecode, setSitecode] = useState<string>("SITE123");
   const { messages } = useSiteWebSocket(username, sitecode);
+  const [activeCalls, setActiveCalls] = useState<ActiveCall[]>([]);
 
-  // Mock data for active calls
-  const [activeCalls, setActiveCalls] = useState([
-    {
-      id: 1,
-      type: "Emergency Call",
-      resident: "Mrs. Johnson",
-      room: "124A",
-      location: "Bathroom",
-      priority: "high",
-      duration: "2:15",
-      status: "active",
-      timestamp: new Date(Date.now() - 2 * 60 * 1000)
-    },
-    {
-      id: 2,
-      type: "Nurse Call",
-      resident: "Mr. Williams",
-      room: "108B",
-      location: "Bedside",
-      priority: "medium",
-      duration: "5:32",
-      status: "pending",
-      timestamp: new Date(Date.now() - 5 * 60 * 1000)
-    },
-    {
-      id: 3,
-      type: "Bathroom Assist",
-      resident: "Ms. Davis",
-      room: "203C",
-      location: "Bed",
-      priority: "low",
-      duration: "8:45",
-      status: "assigned",
-      timestamp: new Date(Date.now() - 8 * 60 * 1000)
-    }
-  ]);
+
+  function normalizeCall(id: string, call: CallData): ActiveCall {
+    return {
+      id,
+      callType: call.callType,
+      room: call.room,
+      zone: call.zone,
+      start: new Date(call.start),
+      priority: "high", // TODO: derive properly
+    };
+  }
+
 
   useEffect(() => {
     if (messages.length === 0) return;
 
-    const latestMessage = messages[messages.length - 1];
-    console.log(latestMessage);
-    if (!latestMessage.update) return;
-    const update = latestMessage.update;
-    if (update.liveCalls) {
+    const raw = messages.at(-1);
+    if (!raw) return;
 
-      /*
-      const arr = Object.entries(update.liveCalls).map(([key, value]) => ({
-        id: key,
-        ...value,
-      }));
-      
-      }
-      */
-
-const obj: Record<string, CallData> = {
-  "002": {
-    AccessoryType: "",
-    aqRef: "MainPanel15435100254351",
-    batteryLevel: "No Data",
-    beaconId: "ground floor",
-    callType: "Attendance",
-    carer: "Room Unit",
-    duration: "Live",
-    end: "Live",
-    journeyRef: "jrny_MainPanel15435100254351",
-    locTx: "002.5",
-    panelRef: "Main Panel",
-    room: "unit 2",
-    start: "2025-09-30 14:43:51.626651Z",
-    startFullDate: "15:43:51",
-    txCode: "002.5",
-    unitId: "002.5",
-    zone: "ground floor",
-  },
-};
-
-
-// Convert to array, preserving the key
-const arr = Object.entries(obj).map(([key, value]) => ({
-  id: key,
-  ...value,
-}));
-  console.log(arr);
-      setActiveCalls(arr);
-
+    let latestMessage: SiteMessage;
+    try {
+      latestMessage = raw as SiteMessage; // ✅ raw is string
+    } catch (e) {
+      console.error("Invalid WebSocket payload", e);
+      return;
     }
 
-    //{messages.map((msg: SiteMessage, i: number) => (
-    //))}
+    if (!latestMessage.update?.liveCalls) return;
 
-  }, [messages]);
+    const arr: ActiveCall[] = Object.entries(latestMessage.update.liveCalls)
+      .map(([id, call]) => normalizeCall(id, call));
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
+    setActiveCalls(arr);
+  }, [messages, normalizeCall]);
 
   const formatDuration = (timestamp: Date) => {
     try {
@@ -267,10 +203,10 @@ const arr = Object.entries(obj).map(([key, value]) => ({
       const seconds = diff % 60;
       return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
-    catch(e){
+    catch (e) {
       return `00:00}`;
     }
-    
+
   };
 
   return (
@@ -367,15 +303,15 @@ const arr = Object.entries(obj).map(([key, value]) => ({
             <CardContent className="space-y-4">
               {activeCalls.map((call) => (
                 <div key={call.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                  
+
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      
+
                       <span className="font-medium">{call.room}</span>
                       {getPriorityBadge(call.priority)}
                       {getCallTypeBadge(call.callType)}
                     </div>
-                    
+
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
@@ -386,7 +322,7 @@ const arr = Object.entries(obj).map(([key, value]) => ({
                         {formatDuration(call.start)}
                       </span>
                     </div>
-                    
+
                     <div className="text-sm font-medium">{call.callType}</div>
                   </div>
                   {/*
@@ -395,7 +331,7 @@ const arr = Object.entries(obj).map(([key, value]) => ({
                     Respond
                   </Button>
                   */}
-                  
+
                 </div>
               ))}
               {activeCalls.length === 0 && (
@@ -466,30 +402,15 @@ const arr = Object.entries(obj).map(([key, value]) => ({
   );
 };
 
-interface SiteMessage {
-  message?: string;
-  error?: string;
-  sitecode?: string;
-  update?: string;
-}
 
 
-      type CallData = {
-  AccessoryType: string;
-  aqRef: string;
-  batteryLevel: string;
-  beaconId: string;
+
+// Frontend shape (normalized)
+type ActiveCall = {
+  id: string | number;
   callType: string;
-  carer: string;
-  duration: string;
-  end: string;
-  journeyRef: string;
-  locTx: string;
-  panelRef: string;
   room: string;
-  start: string;
-  startFullDate: string;
-  txCode: string;
-  unitId: string;
-  zone: string;
+  zone?: string;
+  priority?: "high" | "medium" | "low";
+  start: Date;
 };

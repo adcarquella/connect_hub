@@ -1,14 +1,20 @@
 // src/hooks/useSiteWebSocket.ts
 import { useEffect, useRef, useState } from "react";
 
-interface SiteMessage {
+export  interface SiteMessage {
   message?: string;
   error?: string;
   sitecode?: string;
-  update?: string;
+  update?: {
+    liveCalls?: Record<string, CallData>; // or CallData[], depending on backend
+  };
+}
+interface UseSiteWebSocketResult {
+  messages: SiteMessage[];
 }
 
-export function useSiteWebSocket(username: string, sitecode: string) {
+export function useSiteWebSocket(username: string, sitecode: string):UseSiteWebSocketResult {
+  
   const wsRef = useRef<WebSocket | null>(null);
   const [messages, setMessages] = useState<SiteMessage[]>([]);
 
@@ -26,15 +32,14 @@ export function useSiteWebSocket(username: string, sitecode: string) {
       ws.send(JSON.stringify({ action: 'subscribe', username, sitecode }));
     };
 
-    ws.onmessage = (event) => {
-      try {
-        const data: SiteMessage = JSON.parse(event.data);
-        setMessages(prev => [...prev, data]);
-      } catch (err) {
-        console.error('Invalid message', event.data);
-      }
-    };
-
+  ws.onmessage = (event) => {
+  try {
+    const parsed = JSON.parse(event.data) as SiteMessage;
+    setMessages((prev) => [...prev, parsed]);
+  } catch (e) {
+    console.error("Invalid WS message", e);
+  }
+};
     ws.onerror = (err) => console.error('WebSocket error', err);
     ws.onclose = () => console.log('WebSocket disconnected');
 
