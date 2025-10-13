@@ -9,12 +9,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      VITE_AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
-      VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
-      VITE_AUTH0_AUDIENCE: ${{ secrets.VITE_AUTH0_AUDIENCE }}
-
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -27,6 +21,10 @@ jobs:
       - name: Build React frontend
         run: CI=false npm run build
         working-directory: frontend
+        env:
+          VITE_AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
+          VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
+          VITE_AUTH0_AUDIENCE: ${{ secrets.VITE_AUTH0_AUDIENCE }}
 
       # ==== DEPLOY FRONTEND ====
       - name: Upload frontend build to server
