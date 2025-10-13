@@ -65,7 +65,7 @@ const server = http.createServer(app);
 setupWebSocketServer(server);
 
 // Start server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8189;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 module.exports = { app, encryptPayload, decryptPayload };
