@@ -27,9 +27,9 @@ jobs:
           CI=false npm run build
         working-directory: frontend
         env:
-          VITE_AUTH0_DOMAIN: ${{ variables.VITE_AUTH0_DOMAIN }}
-          VITE_AUTH0_CLIENT_ID: ${{ variables.VITE_AUTH0_CLIENT_ID }}
-          VITE_AUTH0_AUDIENCE: ${{ variables.VITE_AUTH0_AUDIENCE }}
+          VITE_AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
+          VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
+          VITE_AUTH0_AUDIENCE: ${{ secrets.VITE_AUTH0_AUDIENCE }}
 
       # ==== DEPLOY FRONTEND ====
       - name: Upload frontend build to server
