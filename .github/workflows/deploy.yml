@@ -19,7 +19,12 @@ jobs:
         working-directory: frontend
 
       - name: Build React frontend
-        run: CI=false npm run build
+        run: |
+          echo "Building frontend with:"
+          echo "VITE_AUTH0_DOMAIN=$VITE_AUTH0_DOMAIN"
+          echo "VITE_AUTH0_CLIENT_ID=$VITE_AUTH0_CLIENT_ID"
+          echo "VITE_AUTH0_AUDIENCE=$VITE_AUTH0_AUDIENCE"
+          CI=false npm run build
         working-directory: frontend
         env:
           VITE_AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
