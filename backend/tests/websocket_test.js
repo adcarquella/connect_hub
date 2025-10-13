@@ -2,9 +2,7 @@
 const {WebSocket} = require('ws');
 
 //const ws = new WebSocket('ws://localhost:3000/ws');
-const ws = new WebSocket('ws://connecthubapi.arquel.la/ws');
-
-
+const ws = new WebSocket('ws://connectapi.arquella.co.uk/ws');
 
 
 ws.on('open', () => {
