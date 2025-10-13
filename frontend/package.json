@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm vite build",
+    "build": "vite build",
     "build:dev": "npm version patch && vite build --mode development",
     "patch": "npm version patch",
     "minor": "npm version minor",

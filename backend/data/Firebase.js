@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const serviceAccount = require('./arquella-cc76e-firebase-adminsdk-tonpm-ff715ebc64.json');
+const serviceAccount = require('./serviceAccountKey.json');
 
 const apps = {}; // Map of database URLs to Firebase apps
 

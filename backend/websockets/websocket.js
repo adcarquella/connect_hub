@@ -67,6 +67,21 @@ function setupMqtt() {
                 console.log(`Subscribed to topic: ${topic}`);
             }
         });
+
+
+        // 🔹 Start publishing a pull request every 5 minutes
+        const pullTopic = "/devices/fp2/events/pull";
+        setInterval(() => {
+            const payload = JSON.stringify({ action: "pull" }); // <-- adjust if your device expects something else
+            mqttClient.publish(pullTopic, payload, { qos: 1 }, (err) => {
+                if (err) {
+                    console.error("Error publishing pull request:", err);
+                } else {
+                    console.log(`Pull request sent to ${pullTopic}:`, payload);
+                }
+            });
+        }, 5 * 60 * 1000); // 5 minutes
+
     });
 
     mqttClient.on('error', (err) => {
@@ -103,8 +118,6 @@ function setupMqtt() {
 
         try {
             const parsed = JSON.parse(message.toString());
-            console.log(parsed)
-            // Example topic: "sites/SITE123/events"
             const sitecode = "sensetest";
             if (eventType==="") return;
             const eventValue = parsed.payload.event;

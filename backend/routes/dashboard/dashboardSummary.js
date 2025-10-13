@@ -15,7 +15,6 @@ async function getDashboardSummary(req, res){
                         group by us_SiteID, s_Name
                         order by s_Name;`;
 
-
         const [callTotals] = await connection.promise().query(sql); 
         const callTotalsObject = callTotals.map(r=>({
             "SiteID": r.s_ID,

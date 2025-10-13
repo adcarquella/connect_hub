@@ -32,7 +32,8 @@ const deviceStatuses = [
     status: "fall_detected",
     location: "bathroom",
     lastUpdate: new Date(Date.now() - 1 * 60 * 1000),
-    batteryLevel: 85
+    batteryLevel: 85,
+    lightLevel: 25
   },
   {
     id: 2,
@@ -41,7 +42,8 @@ const deviceStatuses = [
     status: "in_bed",
     location: "bedroom",
     lastUpdate: new Date(Date.now() - 3 * 60 * 1000),
-    batteryLevel: 92
+    batteryLevel: 92,
+    lightLevel: 25
   },
   {
     id: 3,
@@ -50,7 +52,8 @@ const deviceStatuses = [
     status: "in_chair",
     location: "living_area",
     lastUpdate: new Date(Date.now() - 2 * 60 * 1000),
-    batteryLevel: 76
+    batteryLevel: 76,
+    lightLevel: 25
   },
   {
     id: 4,
@@ -59,7 +62,8 @@ const deviceStatuses = [
     status: "fall_risk",
     location: "bathroom",
     lastUpdate: new Date(Date.now() - 4 * 60 * 1000),
-    batteryLevel: 68
+    batteryLevel: 68,
+    lightLevel: 25
   },
   {
     id: 5,
@@ -68,7 +72,8 @@ const deviceStatuses = [
     status: "in_room",
     location: "bedroom",
     lastUpdate: new Date(Date.now() - 1 * 60 * 1000),
-    batteryLevel: 94
+    batteryLevel: 94,
+    lightLevel: 25
   }
 ];
 
@@ -226,8 +231,7 @@ export const LiveCalls = () => {
             <span>Last updated: {currentTime.toLocaleTimeString()}</span>
           </div>
         </div>
-        {//<SiteFeed />
-        }
+
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
@@ -301,40 +305,87 @@ export const LiveCalls = () => {
               </CardTitle>
               <CardDescription>Calls currently requiring attention</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {activeCalls.map((call) => (
-                <div key={call.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-
-                      <span className="font-medium">{call.room}</span>
-                      {getPriorityBadge(call.priority)}
-                      {getCallTypeBadge(call.callType)}
+            <CardContent className="space-y-3">
+              {activeCalls.map((call) => {
+                const colors = getCallTypeColors(call.callType);
+                return (
+                  <div 
+                    key={call.id} 
+                    className="relative overflow-hidden rounded-xl flex items-center gap-0 bg-white dark:bg-gray-800"
+                  >
+                    {/* Vertical Room Label */}
+                    <div 
+                      className="w-12 h-24 flex items-center justify-center text-white font-semibold text-xs"
+                      style={{
+                        background: getCallTypeGradient(call.callType),
+                        writingMode: 'vertical-rl',
+                        textOrientation: 'mixed'
+                      }}
+                    >
+                      {call.room}
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {call.room} - {call.zone}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
+                    {/* Circular Progress Indicator */}
+                    <div className="relative w-20 h-24 flex items-center justify-center">
+                      <svg className="w-16 h-16 transform -rotate-90">
+                        {/* Background circle */}
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="28"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          fill="none"
+                          className="text-gray-200 dark:text-gray-700"
+                        />
+                        {/* Progress circle */}
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="28"
+                          stroke={`url(#gradient-call-${call.id})`}
+                          strokeWidth="3"
+                          fill="none"
+                          strokeDasharray={`${(call.lightLevel / 100) * 176} 176`}
+                          strokeLinecap="round"
+                        />
+                        <defs>
+                          <linearGradient id={`gradient-call-${call.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style={{ stopColor: colors.start }} />
+                            <stop offset="100%" style={{ stopColor: colors.end }} />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      {/* Icon in center */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Phone className="h-5 w-5 text-foreground" />
+                      </div>
+                    </div>
+
+                    {/* Status Section */}
+                    <div className="flex-1 py-3">
+                      <div className="text-xs text-muted-foreground mb-1">Status</div>
+                      <div className="text-xl font-bold" style={{
+                        background: getCallTypeGradient(call.callType),
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}>
+                        {call.room}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">{call.zone}</div>
+                    </div>
+
+                    {/* Duration Section */}
+                    <div className="px-4 py-3 text-right">
+                      <div className="text-xs text-muted-foreground mb-1">Duration</div>
+                      <div className="text-lg font-semibold text-foreground">
                         {formatDuration(call.start)}
-                      </span>
+                      </div>
                     </div>
-
-                    <div className="text-sm font-medium">{call.callType}</div>
                   </div>
-                  {/*
-                  accept call button
-                  <Button size="sm" variant={call.priority === "high" ? "destructive" : "default"}>
-                    Respond
-                  </Button>
-                  */}
-
-                </div>
-              ))}
+                );
+              })}
               {activeCalls.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   No active calls at this time
@@ -352,22 +403,80 @@ export const LiveCalls = () => {
               </CardTitle>
               <CardDescription>Current status of all monitoring devices</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {deviceStatuses.map((device) => (
-                <div key={device.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    {getStatusIcon(device.status)}
-                    <div>
-                      <div className="font-medium">{device.resident}</div>
-                      <div className="text-sm text-muted-foreground">{device.room}</div>
+                <div 
+                  key={device.id} 
+                  className="relative overflow-hidden rounded-xl flex items-center gap-0 bg-white dark:bg-gray-800"
+                >
+                  {/* Vertical Room Label */}
+                  <div 
+                    className="w-12 h-24 flex items-center justify-center text-white font-semibold text-xs"
+                    style={{
+                      background: getLightGradient(device.lightLevel),
+                      writingMode: 'vertical-rl',
+                      textOrientation: 'mixed'
+                    }}
+                  >
+                    {device.room}
+                  </div>
+
+                  {/* Circular Progress Indicator */}
+                  <div className="relative w-20 h-24 flex items-center justify-center">
+                    <svg className="w-16 h-16 transform -rotate-90">
+                      {/* Background circle */}
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="none"
+                        className="text-gray-200 dark:text-gray-700"
+                      />
+                      {/* Progress circle */}
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        stroke="url(#gradient-device-${device.id})"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeDasharray={`${(device.lightLevel / 100) * 176} 176`}
+                        strokeLinecap="round"
+                      />
+                      <defs>
+                        <linearGradient id={`gradient-device-${device.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: device.lightLevel <= 40 ? '#0C5A6B' : device.lightLevel <= 60 ? '#2A739C' : device.lightLevel <= 80 ? '#7ACAE2' : '#7CC43A' }} />
+                          <stop offset="100%" style={{ stopColor: device.lightLevel <= 40 ? '#2A739C' : device.lightLevel <= 60 ? '#7ACAE2' : device.lightLevel <= 80 ? '#7CC43A' : '#A3D866' }} />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    {/* Icon in center */}
+                    <div className="absolute inset-0 flex items-center justify-center text-foreground">
+                      {getStatusIcon(device.status)}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium capitalize">
+
+                  {/* Status Section */}
+                  <div className="flex-1 py-3">
+                    <div className="text-xs text-muted-foreground mb-1">Status</div>
+                    <div className="text-xl font-bold capitalize" style={{
+                      background: getLightGradient(device.lightLevel),
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}>
                       {device.status.replace('_', ' ')}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Zap className="h-3 w-3" />
+                    <div className="text-xs text-muted-foreground mt-1">{device.resident}</div>
+                  </div>
+
+                  {/* Battery/Duration Section */}
+                  <div className="px-4 py-3 text-right">
+                    <div className="text-xs text-muted-foreground mb-1">Battery</div>
+                    <div className="text-lg font-semibold text-foreground flex items-center gap-1 justify-end">
+                      <Zap className="h-4 w-4" />
                       {device.batteryLevel}%
                     </div>
                   </div>
@@ -387,15 +496,17 @@ export const LiveCalls = () => {
             <CardDescription>Real-time view of facility layout and room statuses</CardDescription>
           </CardHeader>
           <CardContent>
-{/*}
-             <iframe 
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                                             <iframe 
                 title="MoveLiveView" 
                 id="iiwariframe" 
                 src="https://app.iiwari.cloud/arquella/map/018c6d7d-1963-f4b1-db9d-9640263c65a2?token=c7G7EEDQV0HzNHDTgSgRD9awXx4zX5HrxpyUqKWr7coO3xoI9v3N5LpefXgHU10QaGovZhWAJgqAdysDBr&amp;touch=1" 
                 style={{height: "80vh", width: "1200px"}}
                 //style="margin-left: 2.5%; margin-top: 10px; align-self: center; height: 80vh; width: 1200px; margin-right: 10px;"
                 ></iframe>
-*/}
+              
+
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -414,4 +525,87 @@ type ActiveCall = {
   zone?: string;
   priority?: "high" | "medium" | "low";
   start: Date;
+  lightLevel?:number
+};
+
+
+// Get solid colors for SVG gradients based on call type
+const getCallTypeColors = (type: string) => {
+  switch (type) {
+    case "emergency":
+      return { start: '#c93838', end: '#e66060' };
+    case "call":
+      return { start: '#f5814e', end: '#f9a67a' };
+    case "sense":
+      return { start: '#914397', end: '#b366b8' };
+    case "attendance":
+      return { start: '#94ca66', end: '#b3d98a' };
+    case "accessory":
+      return { start: '#914397', end: '#b366b8' };
+    case "assistance":
+      return { start: '#f8da3c', end: '#fae870' };
+    case "carecall":
+      return { start: '#e11583', end: '#ee4ca3' };
+    case "visit":
+      return { start: '#01573e', end: '#028060' };
+    case "all":
+      return { start: '#4cc1bd', end: '#72d1ce' };
+    default:
+      return { start: '#2A739C', end: '#7ACAE2' };
+  }
+};
+
+// Generate gradient based on light level (1-100) for device status
+const getLightGradient = (lightLevel: number) => {
+  // Arquella brand colors in HSL
+  const darkTeal = '191 80% 23%';     // #0C5A6B
+  const darkerBlue = '200 57% 39%';   // #2A739C
+  const primaryGreen = '88 55% 50%';  // #7CC43A
+  const lighterBlue = '196 67% 68%';  // #7ACAE2
+  const lighterGreen = '85 59% 63%';  // #A3D866
+
+  // Map light level to gradient
+  if (lightLevel <= 20) {
+    // Very dark: Dark teal to darker blue
+    return `linear-gradient(135deg, hsl(${darkTeal}) 0%, hsl(${darkerBlue}) 100%)`;
+  } else if (lightLevel <= 40) {
+    // Dark: Darker blue to dark teal
+    return `linear-gradient(135deg, hsl(${darkerBlue}) 0%, hsl(${darkTeal}) 100%)`;
+  } else if (lightLevel <= 60) {
+    // Medium: Darker blue to lighter blue
+    return `linear-gradient(135deg, hsl(${darkerBlue}) 0%, hsl(${lighterBlue}) 100%)`;
+  } else if (lightLevel <= 80) {
+    // Bright: Lighter blue to primary green
+    return `linear-gradient(135deg, hsl(${lighterBlue}) 0%, hsl(${primaryGreen}) 100%)`;
+  } else {
+    // Very bright: Primary green to lighter green
+    return `linear-gradient(135deg, hsl(${primaryGreen}) 0%, hsl(${lighterGreen}) 100%)`;
+  }
+};
+
+
+// Generate gradient based on call type
+const getCallTypeGradient = (type: string) => {
+  switch (type) {
+    case "emergency":
+      return 'linear-gradient(135deg, hsl(0 84% 45%) 0%, hsl(0 84% 60%) 100%)'; // red
+    case "call":
+      return 'linear-gradient(135deg, hsl(20 90% 63%) 0%, hsl(20 90% 75%) 100%)'; // orange
+    case "sense":
+      return 'linear-gradient(135deg, hsl(290 42% 40%) 0%, hsl(290 42% 55%) 100%)'; // purple
+    case "attendance":
+      return 'linear-gradient(135deg, hsl(88 47% 59%) 0%, hsl(88 47% 70%) 100%)'; // green
+    case "accessory":
+      return 'linear-gradient(135deg, hsl(290 42% 40%) 0%, hsl(290 42% 55%) 100%)'; // purple
+    case "assistance":
+      return 'linear-gradient(135deg, hsl(48 94% 60%) 0%, hsl(48 94% 75%) 100%)'; // yellow
+    case "carecall":
+      return 'linear-gradient(135deg, hsl(326 83% 48%) 0%, hsl(326 83% 63%) 100%)'; // pink
+    case "visit":
+      return 'linear-gradient(135deg, hsl(162 98% 17%) 0%, hsl(162 98% 30%) 100%)'; // dark green
+    case "all":
+      return 'linear-gradient(135deg, hsl(178 51% 52%) 0%, hsl(178 51% 65%) 100%)'; // teal
+    default:
+      return 'linear-gradient(135deg, hsl(200 57% 39%) 0%, hsl(196 67% 68%) 100%)'; // default blue
+  }
 };

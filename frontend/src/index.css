@@ -19,11 +19,11 @@
     --nav-foreground: 222.2 84% 4.9%;
     --nav-hover: 177 52% 52% / 0.3;
 
-    /* Primary brand colors - Company teal */
-    --primary: 177 52% 42%;
+    /* Primary brand colors - Arquella teal */
+    --primary: 191 80% 23%;
     --primary-foreground: 210 20% 98%;
-    --primary-hover: 177 52% 50%;
-    --primary-muted: 177 52% 42% / 0.15;
+    --primary-hover: 191 70% 30%;
+    --primary-muted: 191 80% 23% / 0.15;
 
     /* Secondary accent - Company blue-grey */
     --secondary: 215 28% 26%;
@@ -43,10 +43,6 @@
     --destructive: 0 73% 57%;
     --destructive-foreground: 210 20% 98%;
     --destructive-muted: 0 73% 57% / 0.15;
-
-    --attendance: 0 73% 57%;
-    --attendance-foreground: 210 20% 98%;
-    --attendance-muted: 0 73% 57% / 0.15;
 
     /* Muted colors - Light */
     --muted: 210 40% 96%;
@@ -83,6 +79,13 @@
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
+    /* Chart colors - Light theme (Arquella brand colors) */
+    --chart-1: 191 80% 23%;    /* Primary Dark Teal/Blue - In Bed */
+    --chart-2: 200 57% 39%;    /* Darker Blue - In Chair */
+    --chart-3: 88 55% 50%;     /* Primary Green - In Bathroom */
+    --chart-4: 196 67% 68%;    /* Lighter Blue - Out of Room */
+    --chart-5: 85 59% 63%;     /* Lighter Green */
+
     /* Sidebar - Light theme */
     --sidebar-background: 0 0% 100% / 0.9;
     --sidebar-foreground: 222.2 84% 4.9%;
@@ -113,11 +116,11 @@
     --nav-foreground: 210 20% 90%;
     --nav-hover: 177 52% 52% / 0.5;
 
-    /* Primary brand colors - Company teal */
-    --primary: 177 52% 52%;
+    /* Primary brand colors - Arquella teal */
+    --primary: 191 70% 35%;
     --primary-foreground: 210 20% 98%;
-    --primary-hover: 177 52% 60%;
-    --primary-muted: 177 52% 52% / 0.15;
+    --primary-hover: 191 70% 45%;
+    --primary-muted: 191 70% 35% / 0.15;
 
     /* Secondary accent - Company blue-grey */
     --secondary: 215 28% 36%;
@@ -137,10 +140,6 @@
     --destructive: 0 73% 57%;
     --destructive-foreground: 210 20% 98%;
     --destructive-muted: 0 73% 57% / 0.15;
-
-    --attendance: 0 73% 57%;
-    --attendance-foreground: 210 20% 98%;
-    --attendance-muted: 0 73% 57% / 0.15;
 
     /* Muted colors - Lighter */
     --muted: 220 13% 20% / 0.5;
@@ -176,6 +175,13 @@
     --transition-fast: all 0.15s ease-out;
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Chart colors - Dark theme (Arquella brand colors) */
+    --chart-1: 191 70% 35%;    /* Primary Dark Teal/Blue - In Bed */
+    --chart-2: 200 57% 50%;    /* Darker Blue - In Chair */
+    --chart-3: 88 55% 60%;     /* Primary Green - In Bathroom */
+    --chart-4: 196 67% 75%;    /* Lighter Blue - Out of Room */
+    --chart-5: 85 59% 70%;     /* Lighter Green */
 
     /* Sidebar - Updated for glass theme */
     --sidebar-background: 220 13% 15% / 0.6;

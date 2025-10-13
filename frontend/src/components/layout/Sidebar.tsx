@@ -23,7 +23,7 @@ import {
   Wifi,
   User,
   Bell,
-  Clock
+  Clock,Brain
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -38,19 +38,20 @@ interface SidebarProps {
 
 const navigation = [
   { name: "Analytics Dashboard", href: "/", icon: BarChart3 },
-  { name: "Live Site Monitor", href: "/live-calls", icon: Phone }
+  { name: "Live Site Monitor", href: "/live-calls", icon: Phone },
+  { name: "Sense", href: "/sense", icon: Brain },
+  { name: "Call Events", href: "/call-data", icon: Phone }
   /*
-  ,
   { name: "Call Events", href: "/call-data", icon: Phone },
   { name: "Sensor Analytics", href: "/analytics", icon: Activity },
   { name: "Staff Performance", href: "/team", icon: Users },
   { name: "Reports", href: "/reports", icon: FileText },
   { name: "Alert Management", href: "/insights", icon: AlertTriangle },
-   */
+  */
 ];
 
 const systemStatus = [
-  /*{ 
+  { 
     label: "System Status", 
     value: "Online", 
     icon: Wifi, 
@@ -63,11 +64,11 @@ const systemStatus = [
     icon: Router, 
     status: "success",
     showBadge: false 
-  },*/
+  }
 ];
 
 const notifications = [
-  /*{
+  {
     id: 1,
     type: "Emergency Call",
     location: "Room 124A",
@@ -90,7 +91,7 @@ const notifications = [
     time: "8 minutes ago",
     priority: "low",
     patient: "Ms. Davis"
-  }*/
+  }
 ];
 
 export const Sidebar = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse }: SidebarProps) => {
@@ -286,7 +287,7 @@ const SidebarContent = ({ currentPath, showCloseButton, onClose, isCollapsed = f
             {/* Call Bell Notifications */}
             <Popover open={notificationsOpen} onOpenChange={setNotificationsOpen}>
               <PopoverTrigger asChild>
-                {/*}
+                
                 <button 
                   className={cn(
                     "flex items-center gap-3 text-sm w-full hover:bg-nav-hover rounded-lg p-2 transition-colors",
@@ -308,7 +309,7 @@ const SidebarContent = ({ currentPath, showCloseButton, onClose, isCollapsed = f
                     </>
                   )}
                 </button>
-                */}
+                
               </PopoverTrigger>
               <PopoverContent 
                 className="w-80 p-0" 

@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Auth0Provider } from "@auth0/auth0-react";
 import AppRoutes from "./Routes";
 
-
 // 👇 Replace with your Auth0 values (best to keep in .env)
 const domain = import.meta.env.VITE_AUTH0_DOMAIN as string;
 const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID as string;
@@ -17,7 +16,7 @@ const queryClient = new QueryClient();
 const App = () => {
   
   console.log(window.location.origin);
-
+  
   return (
 
     <Auth0Provider

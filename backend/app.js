@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const crypto = require('crypto');
 const { getDashboardSummary } = require('./routes/dashboard/dashboardSummary');
+const { getCallData } = require('./routes/call_data/calldata');
 const { setupWebSocketServer } = require('./websockets/websocket');
 
 const app = express();
@@ -43,6 +44,7 @@ function decryptPayload(base64Payload) {
 // Routes
 app.get("/api/hello", (req, res) => res.json({ message: "Hello World" }));
 app.post("/dashboard/summary", getDashboardSummary);
+app.post("/call/getdata", getCallData);
 
 app.post("/api/data", (req, res) => {
   try {
