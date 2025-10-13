@@ -13,7 +13,8 @@ const app = express();
 // Middleware
 app.use(bodyParser.json({ limit: '1mb' }));
 app.use(cors({
-  origin: process.env.CLIENT_URL || '*',
+  //origin: process.env.CLIENT_URL || '*',
+  origin: "https://connect.arquella.co.uk" || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
