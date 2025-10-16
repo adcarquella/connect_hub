@@ -54,7 +54,9 @@ const AppRoutes = () => {
 
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={(!isAuthenticated)?<Welcome />:<Dashboard />} />
+        {<Route path="/" element={(!isAuthenticated)?<Welcome />:<Dashboard />} />}
+        {//<Route path="/" element={<Dashboard />} />
+}
         <Route path="/reports" element={<Reports />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/team" element={<Team />} />

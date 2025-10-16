@@ -3,8 +3,63 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Bed, Armchair, Bath, DoorOpen, Clock, TrendingUp } from "lucide-react";
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from "recharts";
+
+// Timeline data with detailed breakdown for each sensor/location
+const timelineData = [
+  {
+    name: "Bed",
+    segments: [
+      { start: "00:00", end: "06:30", status: "in-bed", startTime: new Date("2025-10-15T00:00:00"), endTime: new Date("2025-10-15T06:30:00") },
+      { start: "06:30", end: "07:00", status: "off", startTime: new Date("2025-10-15T06:30:00"), endTime: new Date("2025-10-15T07:00:00") },
+      { start: "14:00", end: "15:00", status: "in-bed", startTime: new Date("2025-10-15T14:00:00"), endTime: new Date("2025-10-15T15:00:00") },
+      { start: "21:15", end: "23:59", status: "in-bed", startTime: new Date("2025-10-15T21:15:00"), endTime: new Date("2025-10-15T23:59:00") },
+    ],
+  },
+  {
+    name: "Chair",
+    segments: [
+      { start: "07:15", end: "08:45", status: "in-chair", startTime: new Date("2025-10-15T07:15:00"), endTime: new Date("2025-10-15T08:45:00") },
+      { start: "09:30", end: "11:30", status: "in-chair", startTime: new Date("2025-10-15T09:30:00"), endTime: new Date("2025-10-15T11:30:00") },
+      { start: "12:30", end: "14:00", status: "in-chair", startTime: new Date("2025-10-15T12:30:00"), endTime: new Date("2025-10-15T14:00:00") },
+      { start: "15:00", end: "17:00", status: "in-chair", startTime: new Date("2025-10-15T15:00:00"), endTime: new Date("2025-10-15T17:00:00") },
+      { start: "17:20", end: "19:00", status: "in-chair", startTime: new Date("2025-10-15T17:20:00"), endTime: new Date("2025-10-15T19:00:00") },
+      { start: "19:45", end: "21:00", status: "in-chair", startTime: new Date("2025-10-15T19:45:00"), endTime: new Date("2025-10-15T21:00:00") },
+    ],
+  },
+  {
+    name: "Bathroom",
+    segments: [
+      { start: "07:00", end: "07:15", status: "in-bathroom", startTime: new Date("2025-10-15T07:00:00"), endTime: new Date("2025-10-15T07:15:00") },
+      { start: "17:00", end: "17:20", status: "in-bathroom", startTime: new Date("2025-10-15T17:00:00"), endTime: new Date("2025-10-15T17:20:00") },
+      { start: "21:00", end: "21:15", status: "in-bathroom", startTime: new Date("2025-10-15T21:00:00"), endTime: new Date("2025-10-15T21:15:00") },
+    ],
+  },
+  {
+    name: "Room Presence",
+    segments: [
+      { start: "08:45", end: "09:30", status: "out-of-room", startTime: new Date("2025-10-15T08:45:00"), endTime: new Date("2025-10-15T09:30:00") },
+      { start: "11:30", end: "12:30", status: "out-of-room", startTime: new Date("2025-10-15T11:30:00"), endTime: new Date("2025-10-15T12:30:00") },
+      { start: "19:00", end: "19:45", status: "out-of-room", startTime: new Date("2025-10-15T19:00:00"), endTime: new Date("2025-10-15T19:45:00") },
+    ],
+  },
+  {
+    name: "Light Level V2",
+    type: "numeric",
+    segments: [
+      { start: "00:00", end: "06:00", status: "light-off", level: 0, startTime: new Date("2025-10-15T00:00:00"), endTime: new Date("2025-10-15T06:00:00") },
+      { start: "06:00", end: "07:00", status: "light-dim", level: 150, startTime: new Date("2025-10-15T06:00:00"), endTime: new Date("2025-10-15T07:00:00") },
+      { start: "07:00", end: "09:00", status: "light-on", level: 312, startTime: new Date("2025-10-15T07:00:00"), endTime: new Date("2025-10-15T09:00:00") },
+      { start: "09:00", end: "17:00", status: "light-on", level: 312, startTime: new Date("2025-10-15T09:00:00"), endTime: new Date("2025-10-15T17:00:00") },
+      { start: "17:00", end: "19:00", status: "light-dim", level: 200, startTime: new Date("2025-10-15T17:00:00"), endTime: new Date("2025-10-15T19:00:00") },
+      { start: "19:00", end: "21:00", status: "light-on", level: 312, startTime: new Date("2025-10-15T19:00:00"), endTime: new Date("2025-10-15T21:00:00") },
+      { start: "21:00", end: "22:00", status: "light-dim", level: 100, startTime: new Date("2025-10-15T21:00:00"), endTime: new Date("2025-10-15T22:00:00") },
+      { start: "22:00", end: "23:59", status: "light-off", level: 0, startTime: new Date("2025-10-15T22:00:00"), endTime: new Date("2025-10-15T23:59:00") },
+    ],
+  },
+];
 
 const activityData = [
   { time: "00:00", status: "in-bed", duration: 120 },
@@ -50,8 +105,34 @@ const getStatusColor = (status: string) => {
     case "in-chair": return "hsl(var(--chart-2))";
     case "in-bathroom": return "hsl(var(--chart-3))";
     case "out-of-room": return "hsl(var(--chart-4))";
+    case "off": return "hsl(var(--muted))";
+    case "light-off": return "#1a1a1a";
+    case "light-dim": return "#eab308";
+    case "light-on": return "#fbbf24";
     default: return "hsl(var(--muted))";
   }
+};
+
+const formatDuration = (start: Date, end: Date) => {
+  const diffMs = end.getTime() - start.getTime();
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}`;
+  }
+  return `${minutes} min`;
+};
+
+const formatTime = (date: Date) => {
+  return date.toLocaleString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
 };
 
 const getStatusLabel = (status: string) => {
@@ -142,33 +223,78 @@ export default function Sense() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Timeline visualization */}
-              <div className="relative h-24 w-full rounded-lg border bg-muted/20 p-2">
-                <div className="flex h-full w-full items-center">
-                  {activityData.map((activity, index) => {
-                    const widthPercent = (activity.duration / (24 * 60)) * 100;
-                    const Icon = getStatusIcon(activity.status);
-                    return (
-                      <div
-                        key={index}
-                        className="group relative flex h-full items-center justify-center border-r border-background transition-all hover:opacity-80"
-                        style={{
-                          width: `${widthPercent}%`,
-                          backgroundColor: getStatusColor(activity.status),
-                        }}
-                      >
-                        <Icon className="h-4 w-4 text-white opacity-0 group-hover:opacity-100" />
-                        <div className="absolute -bottom-8 left-1/2 hidden -translate-x-1/2 transform whitespace-nowrap text-xs group-hover:block">
-                          {activity.time} - {getStatusLabel(activity.status)}
-                        </div>
+              {/* Timeline visualization with multiple rows */}
+              <TooltipProvider>
+                <div className="space-y-1">
+                  {timelineData.map((row, rowIndex) => (
+                    <div key={rowIndex} className="flex items-center gap-3">
+                      <div className="w-32 text-sm font-medium text-muted-foreground flex-shrink-0">
+                        {row.name}
                       </div>
-                    );
-                  })}
+                      <div className="relative h-8 flex-1 rounded border bg-muted/20">
+                        {row.segments.map((segment, segIndex) => {
+                          // Calculate position and width based on 24-hour day
+                          const startHour = segment.startTime.getHours() + segment.startTime.getMinutes() / 60;
+                          const endHour = segment.endTime.getHours() + segment.endTime.getMinutes() / 60;
+                          const left = (startHour / 24) * 100;
+                          const width = ((endHour - startHour) / 24) * 100;
+                          
+                          return (
+                            <Tooltip key={segIndex}>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className="absolute top-0 h-full cursor-pointer transition-opacity hover:opacity-90"
+                                  style={{
+                                    left: `${left}%`,
+                                    width: `${width}%`,
+                                    backgroundColor: getStatusColor(segment.status),
+                                  }}
+                                />
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs">
+                                <div className="space-y-1">
+                                  <p className="font-semibold">{row.name}</p>
+                                  {row.type === "numeric" && segment.level !== undefined ? (
+                                    <>
+                                      <p className="text-xs text-muted-foreground">
+                                        {formatTime(segment.startTime)}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {formatTime(segment.endTime)}
+                                      </p>
+                                      <p className="text-xs font-medium">
+                                        Level: {segment.level}
+                                      </p>
+                                      <p className="text-xs font-medium">
+                                        Duration: {formatDuration(segment.startTime, segment.endTime)}
+                                      </p>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p className="text-xs text-muted-foreground">
+                                        {formatTime(segment.startTime)}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {getStatusLabel(segment.status)} - {formatTime(segment.endTime)}
+                                      </p>
+                                      <p className="text-xs font-medium">
+                                        Duration: {formatDuration(segment.startTime, segment.endTime)}
+                                      </p>
+                                    </>
+                                  )}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
+              </TooltipProvider>
               
               {/* Time markers */}
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="flex justify-between text-xs text-muted-foreground pl-[8.5rem]">
                 <span>00:00</span>
                 <span>06:00</span>
                 <span>12:00</span>
@@ -210,7 +336,7 @@ export default function Sense() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" />
                   <YAxis stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip
+                  <RechartsTooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",
                       border: "1px solid hsl(var(--border))",
@@ -250,7 +376,7 @@ export default function Sense() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip
+                  <RechartsTooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",
                       border: "1px solid hsl(var(--border))",
