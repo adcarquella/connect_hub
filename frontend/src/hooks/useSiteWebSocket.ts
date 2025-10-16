@@ -46,7 +46,7 @@ export function useSiteWebSocket(username: string, sitecode: string):UseSiteWebS
 
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const host = window.location.hostname;
-    const port = 3000; // backend port
+    const port = 8190; // backend port
     const ws = new WebSocket(`${protocol}://${host}:${port}/ws`);
     wsRef.current = ws;
 

@@ -51,12 +51,11 @@ const AppRoutes = () => {
 
   //    console.log(user);
   return (
-
     <BrowserRouter>
       <Routes>
         {<Route path="/" element={(!isAuthenticated)?<Welcome />:<Dashboard />} />}
         {//<Route path="/" element={<Dashboard />} />
-}
+        }
         <Route path="/reports" element={<Reports />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/team" element={<Team />} />
@@ -80,7 +79,6 @@ const AppRoutes = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
-
   );
 }
 
