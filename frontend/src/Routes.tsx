@@ -22,6 +22,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import Loading from "./components/layout/Loading";
 import Welcome from "./pages/Welcome";
 import Sense from "./pages/Sense";
+import { useAuth } from "./hooks/useAuth0";
 
 const AppRoutes = () => {
 
@@ -53,9 +54,10 @@ const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {<Route path="/" element={(!isAuthenticated)?<Welcome />:<Dashboard />} />}
-        {//<Route path="/" element={<Dashboard />} />
-        }
+        {//<Route path="/" element={(!isAuthenticated)?<Welcome />:<Dashboard />} />}
+}
+        {<Route path="/" element={<Dashboard />} />
+              }
         <Route path="/reports" element={<Reports />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/team" element={<Team />} />

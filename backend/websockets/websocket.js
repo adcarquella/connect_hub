@@ -48,7 +48,7 @@ function setupMqtt() {
 
     const brokerUrl = 'mqtt://mqtt.arquel.la:8883';
     const options = {
-        clientId: 'mqttx_819af243_connect_hub_api_local',
+        clientId: 'mqttx_819af243_connect_hub_api_locsa',
         username: 'vayyar',
         password: 'Arquella',
         clean: true
@@ -56,9 +56,21 @@ function setupMqtt() {
     const topic = "#"
     mqttClient = mqtt.connect(brokerUrl, options); // <-- change URL
 
+    function sendPullRequest(pullTopic) {
+        const payload = JSON.stringify({ "request_id": "1760628593248", "all": true }); // <-- adjust if your device expects something else
+        mqttClient.publish(pullTopic, payload, { qos: 1 }, (err) => {
+            if (err) {
+                console.error("Error publishing pull request:", err);
+            } else {
+                console.log(`Pull request sent to ${pullTopic}:`, payload);
+            }
+        });
+
+    }
+
     mqttClient.on("connect", () => {
         console.log(`Connected to MQTT broker at ${brokerUrl} as ${options.username}`);
-        
+
         // Subscribe to the topic
         mqttClient.subscribe(topic, (err) => {
             if (err) {
@@ -69,18 +81,6 @@ function setupMqtt() {
         });
 
 
-        // 🔹 Start publishing a pull request every 5 minutes
-        const pullTopic = "/devices/fp2/events/pull";
-        setInterval(() => {
-            const payload = JSON.stringify({ action: "pull" }); // <-- adjust if your device expects something else
-            mqttClient.publish(pullTopic, payload, { qos: 1 }, (err) => {
-                if (err) {
-                    console.error("Error publishing pull request:", err);
-                } else {
-                    console.log(`Pull request sent to ${pullTopic}:`, payload);
-                }
-            });
-        }, 5 * 60 * 1000); // 5 minutes
 
     });
 
@@ -100,48 +100,126 @@ function setupMqtt() {
     function getDetailsFromTopic(topic) {
         try {
             const topicSplit = topic.split("/");
+            //            console.log(topicSplit);
             const eventType = (topicSplit.length > 4) ? topicSplit[4] : '';
             return [topicSplit[2], topicSplit[3], eventType];
         }
         catch (e) { return ['', '', '']; }
     }
 
+    function updateSubscription(sitecode, deviceName, eventType, eventValue) {
+        if (siteSubscribers[sitecode]) {
+            const siteObject = siteSubscribers[sitecode].siteObject;
+            try {
+                if (!siteObject.senseEvents[deviceName]) {
+                    siteObject.senseEvents[deviceName] = {
+                        status: "",
+                        lightLevel: "",
+                        deviceName: deviceName,
+                        room: "",
+                        zone: "",
+                        description: "",
+                        presenceStart:0
+                    };
+                    sendPullRequest("/devices/fp2/events/pull");
+                }
+                //siteObject.senseEvents[deviceName] = siteObject.senseEvents[deviceName] || {};
+                // Now assign the lightlevel property
+                siteObject.senseEvents[deviceName][eventType] = eventValue;
+
+
+
+            }
+            catch (e) {
+                console.log(e);
+            }
+
+            // Broadcast update to all connected clients
+            siteSubscribers[sitecode].users.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ sitecode, update: siteObject }));
+                }
+            });
+
+        }
+
+    }
+
+
     mqttClient.on('message', (topic, message) => {
 
         const [deviceID, messageType, eventType] = getDetailsFromTopic(topic);
-        
-        if (messageType !== "events") return;                   //filter out none events
-        if(!deviceID.includes("presence_sensor_")) return;      //filter out any not on the new devices
 
-        console.log(topic);
-        
+        if (messageType !== "events") return;                   //filter out none events
+        if (!deviceID.includes("presence_sensor_")) return;      //filter out any not on the new devices
+
 
         try {
             const parsed = JSON.parse(message.toString());
+
             const sitecode = "sensetest";
-            if (eventType==="") return;
-            const eventValue = parsed.payload.event;
-            if (eventValue === undefined) return;
-            console.log(eventValue);
 
-
-            if (siteSubscribers[sitecode]) {
-                const siteObject = siteSubscribers[sitecode].siteObject;
-                siteObject.senseEvents.push({"status":eventType, "value":eventValue, "room":"test room", "zone":"1st Floor", "description":"status"});
-
-                // Broadcast update to all connected clients
-                siteSubscribers[sitecode].users.forEach(client => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({ sitecode, update: siteObject }));
+            switch (eventType) {
+                case "light":
+                    if (parsed.payload) {
+                        updateSubscription(sitecode, "testroom", "lightLevel", (parsed.payload.light) ? parsed.payload.light : 0)
                     }
-                });
+                    break;
+                case "chair":
+                case "room":
+                case "bed" :
+                    if (parsed.payload) {
+                        updateSubscription(sitecode, "testroom", "status", (parsed.payload.event) ? eventType : "");
+                    }
+                    break;
+                case "sync":
+                    console.log("sync data");
+                    console.log(parsed);
+                    ///  presence
+                    if (parsed) {
+
+                        try {
+                            updateSubscription(sitecode, "testroom", "status", (parsed.current.state==="empty")?"":parsed.current.state)
+                            try {
+                                updateSubscription(sitecode, "testroom", "presenceStart", (parsed.snapshot.presence==="empty")?"":parsed.snapshot.presence)
+                            }
+                            catch(e){
+                                console.log("Error setting presence start", e);
+                            }
+                        }
+                        catch (e) {
+                            console.log(e)
+                        }
+                    }
+                    break;
+                case "":
+                    break;
+
+                default:
+                    console.log("unrecorded path", eventType)
+                    console.log(deviceID, messageType, eventType);
+                    console.log(parsed);
             }
+
         } catch (err) {
-            console.error('Error processing MQTT message:', err);
+            //console.error('Error processing MQTT message:', err);
+            //const parsed = JSON.parse(message.toString());
+            //console.log(parsed);
         }
     });
 
     return mqttClient;
+}
+
+
+function getLiveCallsObject(siteCode) {
+    try {
+        console.log(siteSubscribers[siteCode]);
+        return siteSubscribers[siteCode].siteObject.liveCalls;
+    }
+    catch (e) {
+        return {};
+    }
 }
 
 /**
@@ -165,18 +243,28 @@ function setupWebSocketServer(server) {
                     subscribedSitecode = sitecode;
 
                     if (!siteSubscribers[sitecode]) {
+                        console.log("setting live calls");
                         siteSubscribers[sitecode] = {
                             users: new Set(),
                             unsubscribeFn: null,
                             siteObject: {
-                                liveCalls: {},
+                                liveCalls: getLiveCallsObject(sitecode),
                                 feed: [],
-                                senseEvents: []
+                                senseEvents: {}
                             }
                         };
 
                         // Start Firebase listener for this site
                         siteSubscribers[sitecode].unsubscribeFn = listenToSiteUpdates(sitecode, (update) => {
+                            console.log("sdsupdate", update);
+                            console.log("kksdfsvak", siteSubscribers[sitecode]);
+                            try {
+                                siteSubscribers[sitecode].siteObject.liveCalls = update.update.liveCalls;
+                            }
+                            catch (e) {
+                                console.log("Unable to set the livecalls for the site.");
+                                console.log(e);
+                            }
                             siteSubscribers[sitecode].users.forEach(client => {
                                 if (client.readyState === WebSocket.OPEN) {
                                     client.send(JSON.stringify(update));

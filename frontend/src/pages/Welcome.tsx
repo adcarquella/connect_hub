@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { useAuth0  } from "@auth0/auth0-react";
+//import { useAuth0  } from "@auth0/auth0-react";
+import { useAuth } from "@/hooks/useAuth0";
 
 const Welcome = () => {
   
-  const { loginWithRedirect } = useAuth0();
+  const { loginWithRedirect } = useAuth();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">

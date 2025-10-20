@@ -7,8 +7,19 @@ export  interface SiteMessage {
   sitecode?: string;
   update?: {
     liveCalls?: Record<string, CallData>; // or CallData[], depending on backend
+    senseEvents?: Record<string, DeviceStatus>; // or CallData[], depending on backend
   };
 }
+
+
+export type DeviceStatus = {
+  zone?: string;
+  status?: string;
+  room?: string;
+  description: Date;
+  lightLevel?: number;
+  presenceStart?:number
+};
 
 
 // Backend shape
@@ -46,17 +57,21 @@ export function useSiteWebSocket(username: string, sitecode: string):UseSiteWebS
 
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const host = window.location.hostname;
-    const port = 8190; // backend port
-    const ws = new WebSocket(`${protocol}://${host}:${port}/ws`);
+    const port = 3000; // backend port
+    const dynamicPath = `${protocol}://${host}:${port}/ws`;
+    const staticPath = "wss://connectapi.arquella.co.uk/ws";
+    console.log("dynamicPath",dynamicPath);
+    const ws = new WebSocket(dynamicPath);
     wsRef.current = ws;
 
     ws.onopen = () => {
       console.log('WebSocket connected');
       ws.send(JSON.stringify({ action: 'subscribe', username, sitecode }));
     };
-
+  
   ws.onmessage = (event) => {
   try {
+    console.log("new socket message")
     const parsed = JSON.parse(event.data) as SiteMessage;
     setMessages((prev) => [...prev, parsed]);
   } catch (e) {

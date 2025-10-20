@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { useSiteWebSocket, SiteMessage, CallData } from "../hooks/useSiteWebSocket";
+import { useSiteWebSocket, SiteMessage, CallData, DeviceStatus } from "../hooks/useSiteWebSocket";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,60 +22,6 @@ import { cn } from "@/lib/utils";
 import { SiteFeed } from "@/components/SiteFeed";
 
 
-
-// Mock data for device status
-const deviceStatuses = [
-  {
-    id: 1,
-    resident: "Mrs. Johnson",
-    room: "124A",
-    status: "fall_detected",
-    location: "bathroom",
-    lastUpdate: new Date(Date.now() - 1 * 60 * 1000),
-    batteryLevel: 85,
-    lightLevel: 25
-  },
-  {
-    id: 2,
-    resident: "Mr. Williams",
-    room: "108B",
-    status: "in_bed",
-    location: "bedroom",
-    lastUpdate: new Date(Date.now() - 3 * 60 * 1000),
-    batteryLevel: 92,
-    lightLevel: 25
-  },
-  {
-    id: 3,
-    resident: "Ms. Davis",
-    room: "203C",
-    status: "in_chair",
-    location: "living_area",
-    lastUpdate: new Date(Date.now() - 2 * 60 * 1000),
-    batteryLevel: 76,
-    lightLevel: 25
-  },
-  {
-    id: 4,
-    resident: "Mr. Thompson",
-    room: "156D",
-    status: "fall_risk",
-    location: "bathroom",
-    lastUpdate: new Date(Date.now() - 4 * 60 * 1000),
-    batteryLevel: 68,
-    lightLevel: 25
-  },
-  {
-    id: 5,
-    resident: "Mrs. Anderson",
-    room: "189E",
-    status: "in_room",
-    location: "bedroom",
-    lastUpdate: new Date(Date.now() - 1 * 60 * 1000),
-    batteryLevel: 94,
-    lightLevel: 25
-  }
-];
 
 // Mock floor plan rooms
 const floorPlanRooms = [
@@ -154,10 +100,6 @@ const getCallTypeBadge = (status: string) => {
 
 
 
-
-
-
-
 export const LiveCalls = () => {
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -165,8 +107,8 @@ export const LiveCalls = () => {
   const [sitecode, setSitecode] = useState<string>("sensetest");
   const { messages } = useSiteWebSocket(username, sitecode);
   const [activeCalls, setActiveCalls] = useState<ActiveCall[]>([]);
-
-
+  const [deviceStatuses, setDeviceStatuses] = useState<DeviceStatus[]>([])
+  
   function normalizeCall(id: string, call: CallData): ActiveCall {
     return {
       id,
@@ -178,9 +120,19 @@ export const LiveCalls = () => {
     };
   }
 
+  function normalizeSense(id: string, device: DeviceStatus): DeviceStatus {
+    return {
+      zone: device.zone,
+      status: device.status,
+      room: id,
+      description: device.description,
+      lightLevel: device.lightLevel,
+      presenceStart:device.presenceStart
+    };
+  }
 
   useEffect(() => {
-    console.log(messages);
+
     if (messages.length === 0) return;
 
     const raw = messages.at(-1);
@@ -194,12 +146,30 @@ export const LiveCalls = () => {
       return;
     }
 
+    console.log("latestMessage", latestMessage);
+
     if (!latestMessage.update?.liveCalls) return;
 
     const arr: ActiveCall[] = Object.entries(latestMessage.update.liveCalls)
       .map(([id, call]) => normalizeCall(id, call));
 
     setActiveCalls(arr);
+
+    try {
+      
+      if (!latestMessage.update?.senseEvents) return;
+      const SenseArr: DeviceStatus[] = Object.entries(latestMessage.update.senseEvents)
+      .map(([id, device]) => normalizeSense(id, device));
+      
+      setDeviceStatuses(SenseArr);
+
+    }
+    catch(e){
+      console.log("Error updating sense data", e);
+    }
+
+    setCurrentTime(new Date());
+
   }, [messages]);
 
   const formatDuration = (timestamp: Date) => {
@@ -214,6 +184,19 @@ export const LiveCalls = () => {
     }
 
   };
+
+  function getDeviceRoomPresenceCardText(){
+    try {
+      const list = Object.values(deviceStatuses);
+      const total = list.length;
+      const presence = list.filter(l=>((l.status!="")&&(l.status!="empty"))).length;
+      return `${presence} of ${total}`;
+    }
+    catch(e){
+      console.log("Error setting room presence card text", e);
+      return "";
+    }
+  }
 
   return (
     <DashboardLayout>
@@ -272,7 +255,7 @@ export const LiveCalls = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{deviceStatuses.length}</p>
-                  <p className="text-sm text-muted-foreground">Monitored Residents</p>
+                  <p className="text-sm text-muted-foreground">Sense Devices</p>
                 </div>
               </div>
             </CardContent>
@@ -286,9 +269,13 @@ export const LiveCalls = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
-                    {Math.round(deviceStatuses.reduce((acc, d) => acc + d.batteryLevel, 0) / deviceStatuses.length)}%
+                    {getDeviceRoomPresenceCardText()
+
+                    //Math.round(deviceStatuses.reduce((acc, d) => acc + d.batteryLevel, 0) / deviceStatuses.length)
+                    }
+
                   </p>
-                  <p className="text-sm text-muted-foreground">Avg Battery</p>
+                  <p className="text-sm text-muted-foreground">Room Presence</p>
                 </div>
               </div>
             </CardContent>
@@ -309,15 +296,15 @@ export const LiveCalls = () => {
               {activeCalls.map((call) => {
                 const colors = getCallTypeColors(call.callType);
                 return (
-                  <div 
-                    key={call.id} 
+                  <div
+                    key={call.id}
                     className="relative overflow-hidden rounded-xl flex items-center gap-0 bg-white dark:bg-gray-800"
                   >
                     {/* Vertical Room Label */}
-                    <div 
+                    <div
                       className="w-12 h-24 flex items-center justify-center text-white font-semibold text-xs"
                       style={{
-                        background: getCallTypeGradient(call.callType),
+                        background: getCallTypeGradient(call.callType.toLowerCase()),
                         writingMode: 'vertical-rl',
                         textOrientation: 'mixed'
                       }}
@@ -366,7 +353,7 @@ export const LiveCalls = () => {
                     <div className="flex-1 py-3">
                       <div className="text-xs text-muted-foreground mb-1">Status</div>
                       <div className="text-xl font-bold" style={{
-                        background: getCallTypeGradient(call.callType),
+                        background: getCallTypeGradient(call.callType.toLocaleLowerCase()),
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text'
@@ -405,15 +392,15 @@ export const LiveCalls = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               {deviceStatuses.map((device) => (
-                <div 
-                  key={device.id} 
+                <div
+                  key={device.room}
                   className="relative overflow-hidden rounded-xl flex items-center gap-0 bg-white dark:bg-gray-800"
                 >
                   {/* Vertical Room Label */}
-                  <div 
+                  <div
                     className="w-12 h-24 flex items-center justify-center text-white font-semibold text-xs"
                     style={{
-                      background: getLightGradient(device.lightLevel),
+                      background: getLightGradient(device.lightLevel, device.status),
                       writingMode: 'vertical-rl',
                       textOrientation: 'mixed'
                     }}
@@ -446,10 +433,12 @@ export const LiveCalls = () => {
                         strokeLinecap="round"
                       />
                       <defs>
-                        <linearGradient id={`gradient-device-${device.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        {/*<linearGradient id={`gradient-device-${device.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+}
                           <stop offset="0%" style={{ stopColor: device.lightLevel <= 40 ? '#0C5A6B' : device.lightLevel <= 60 ? '#2A739C' : device.lightLevel <= 80 ? '#7ACAE2' : '#7CC43A' }} />
                           <stop offset="100%" style={{ stopColor: device.lightLevel <= 40 ? '#2A739C' : device.lightLevel <= 60 ? '#7ACAE2' : device.lightLevel <= 80 ? '#7CC43A' : '#A3D866' }} />
                         </linearGradient>
+                        */}
                       </defs>
                     </svg>
                     {/* Icon in center */}
@@ -460,8 +449,8 @@ export const LiveCalls = () => {
 
                   {/* Status Section */}
                   <div className="flex-1 py-3">
-                    <div className="text-xs text-muted-foreground mb-1">Status</div>
-                    <div className="text-xl font-bold capitalize" style={{
+                    <div className="text-xs text-muted-foreground mb-1"></div>
+                    {/*<div className="text-xl font-bold capitalize" style={{
                       background: getLightGradient(device.lightLevel),
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
@@ -469,16 +458,22 @@ export const LiveCalls = () => {
                     }}>
                       {device.status.replace('_', ' ')}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">{device.resident}</div>
+                    */}
+                    <div className="text-xs text-muted-foreground mt-1">{device.room}{(device.status===""?"":` - ${device.status}`)}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{(device.presenceStart>0?`Has been in the room for ${device.presenceStart}.`:"")}</div>
                   </div>
 
                   {/* Battery/Duration Section */}
                   <div className="px-4 py-3 text-right">
-                    <div className="text-xs text-muted-foreground mb-1">Battery</div>
+                    {/*}
+                    <div className="text-xs text-muted-foreground mb-1">{//Battery
+                    }</div>
                     <div className="text-lg font-semibold text-foreground flex items-center gap-1 justify-end">
                       <Zap className="h-4 w-4" />
-                      {device.batteryLevel}%
+                      {//device.lightLevel
+                      }%
                     </div>
+                    */}
                   </div>
                 </div>
               ))}
@@ -497,14 +492,14 @@ export const LiveCalls = () => {
           </CardHeader>
           <CardContent>
             <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
-                                             <iframe 
-                title="MoveLiveView" 
-                id="iiwariframe" 
-                src="https://app.iiwari.cloud/arquella/map/018c6d7d-1963-f4b1-db9d-9640263c65a2?token=c7G7EEDQV0HzNHDTgSgRD9awXx4zX5HrxpyUqKWr7coO3xoI9v3N5LpefXgHU10QaGovZhWAJgqAdysDBr&amp;touch=1" 
-                style={{height: "80vh", width: "1200px"}}
-                //style="margin-left: 2.5%; margin-top: 10px; align-self: center; height: 80vh; width: 1200px; margin-right: 10px;"
-                ></iframe>
-              
+              <iframe
+                title="MoveLiveView"
+                id="iiwariframe"
+                src="https://app.iiwari.cloud/arquella/map/018c6d7d-1963-f4b1-db9d-9640263c65a2?token=c7G7EEDQV0HzNHDTgSgRD9awXx4zX5HrxpyUqKWr7coO3xoI9v3N5LpefXgHU10QaGovZhWAJgqAdysDBr&amp;touch=1"
+                style={{ height: "80vh", width: "1200px" }}
+              //style="margin-left: 2.5%; margin-top: 10px; align-self: center; height: 80vh; width: 1200px; margin-right: 10px;"
+              ></iframe>
+
 
             </div>
           </CardContent>
@@ -525,7 +520,7 @@ type ActiveCall = {
   zone?: string;
   priority?: "high" | "medium" | "low";
   start: Date;
-  lightLevel?:number
+  lightLevel?: number
 };
 
 
@@ -555,8 +550,9 @@ const getCallTypeColors = (type: string) => {
   }
 };
 
+
 // Generate gradient based on light level (1-100) for device status
-const getLightGradient = (lightLevel: number) => {
+const getLightGradient = (lightLevel: number, status:string) => {
   // Arquella brand colors in HSL
   const darkTeal = '191 80% 23%';     // #0C5A6B
   const darkerBlue = '200 57% 39%';   // #2A739C
