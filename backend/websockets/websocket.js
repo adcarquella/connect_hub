@@ -48,7 +48,7 @@ function setupMqtt() {
 
     const brokerUrl = 'mqtt://mqtt.arquel.la:8883';
     const options = {
-        clientId: 'mqttx_819af243_connect_hub_api_locsa',
+        clientId: 'mqttx_819af243_connect_hub_api_locs2a',
         username: 'vayyar',
         password: 'Arquella',
         clean: true
@@ -145,6 +145,12 @@ function setupMqtt() {
 
     }
 
+    function cutDownDeviceID(deviceID){
+        deviceID = deviceID.replace("presence_sensor_", "");
+        deviceID = deviceID.replace("_room", "");
+        return deviceID;
+    }
+
 
     mqttClient.on('message', (topic, message) => {
 
@@ -152,7 +158,9 @@ function setupMqtt() {
 
         if (messageType !== "events") return;                   //filter out none events
         if (!deviceID.includes("presence_sensor_")) return;      //filter out any not on the new devices
-
+        
+        const trueDeviceID = cutDownDeviceID(deviceID);
+        console.log("DEVICEID:", trueDeviceID);
 
         try {
             const parsed = JSON.parse(message.toString());

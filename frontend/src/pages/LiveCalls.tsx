@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SiteFeed } from "@/components/SiteFeed";
+import CallDuration from "@/components/calls/CallDuration";
 
 
 
@@ -36,11 +37,11 @@ const floorPlanRooms = [
 
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case "in_bed":
+    case "bed":
       return <Bed className="h-4 w-4" />;
-    case "in_chair":
+    case "chair":
       return <Armchair className="h-4 w-4" />;
-    case "in_room":
+    case "room":
       return <Home className="h-4 w-4" />;
     case "fall_risk":
       return <AlertTriangle className="h-4 w-4 text-orange-500" />;
@@ -172,8 +173,13 @@ export const LiveCalls = () => {
 
   }, [messages]);
 
-  const formatDuration = (timestamp: Date) => {
+  const formatDuration = (timestamp: Date):string => {
     try {
+      console.log("TimeStamp");
+      console.log(timestamp);
+      if (currentTime < timestamp){
+        return "Calculating duration..."
+      }
       const diff = Math.floor((currentTime.getTime() - timestamp.getTime()) / 1000);
       const minutes = Math.floor(diff / 60);
       const seconds = diff % 60;
@@ -367,7 +373,7 @@ export const LiveCalls = () => {
                     <div className="px-4 py-3 text-right">
                       <div className="text-xs text-muted-foreground mb-1">Duration</div>
                       <div className="text-lg font-semibold text-foreground">
-                        {formatDuration(call.start)}
+                        <CallDuration callStartTime={call.start} />
                       </div>
                     </div>
                   </div>
