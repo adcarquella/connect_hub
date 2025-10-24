@@ -68,8 +68,9 @@ export function useSiteWebSocket(username: string, sitecode: string): UseSiteWeb
       const protocol = window.location.protocol === "https:" ? "wss" : "ws";
       const host = window.location.hostname;
       const port = 3000;
-      const wsUrl = `${protocol}://${host}:${port}/ws`;
-
+//      const wsUrl = `${protocol}://${host}:${port}/ws`;
+      const wsUrl = "ws://connectapi.arquella.co.uk/ws";
+      
       console.log(`Attempting WebSocket connection (try ${attempt + 1}/${maxRetries})...`);
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
