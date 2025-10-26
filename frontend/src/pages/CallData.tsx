@@ -33,6 +33,7 @@ const getTypeColor = (type: string) => {
       return "bg-[red] text-white hover:bg-[red]/90";
     case "Fall Risk":
       return "bg-[#F8DA3C] text-foreground hover:bg-[#F8DA3C]/90";
+    case "CareCall":
     case "Care Call":
       return "bg-[rgb(225,21,131)] text-white hover:bg-[rgb(225,21,131)]/90";
     case "Assistance":
@@ -43,8 +44,7 @@ const getTypeColor = (type: string) => {
       return "bg-[red] text-white hover:bg-[red]/90";
     case "Visit":
       return "bg-[rgb(1,87,62)] text-white hover:bg-[rgb(1,87,62)]/90";
-
-      default:
+    default:
       return "bg-muted text-muted-foreground hover:bg-muted/80";
   }
 };

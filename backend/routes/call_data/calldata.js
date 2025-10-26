@@ -24,7 +24,7 @@ async function getCallData(req, res){
     cll_call_origin AS 'CallOrigin',
     cll_callCode AS 'CallCode'
 FROM tblCompiledCalls
-WHERE cl_site_ID = 105
+WHERE cl_site_ID = 105 and cll_type <> ""
 ORDER BY cll_start_date DESC
 LIMIT 1000;`;
 
