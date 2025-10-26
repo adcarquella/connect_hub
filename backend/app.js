@@ -45,7 +45,7 @@ function decryptPayload(base64Payload) {
 // Routes
 app.get("/api/hello", (req, res) => res.json({ message: "Hello World" }));
 app.post("/api/dashboard/summary", getDashboardSummary);
-app.post("/apicall/getdata", getCallData);
+app.post("/api/call/getdata", getCallData);
 
 app.post("/api/data", (req, res) => {
   try {
