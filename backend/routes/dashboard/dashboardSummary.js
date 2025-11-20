@@ -15,7 +15,17 @@ async function getDashboardSummary(req, res){
                         group by us_SiteID, s_Name
                         order by s_Name;`;
 
-        const [callTotals] = await connection.promise().query(sql); 
+        const [callTotals] = await connection.promise().query(sql);
+
+        const callsByZoneSQL = `select cll_zone as 'Zone', cll_type as 'Call Type', count(*) as TotalCalls 
+                                    from tblCompiledCalls C
+                                    where cl_site_ID = 105
+                                    and C.cll_start_date between "2025-09-01" and "2025-12-01"
+                                    group by cll_zone, cll_type
+                                    order by cll_zone;`;
+
+        const [callsbyZone] = await connection.promise().query(callsByZoneSQL);
+
         const callTotalsObject = callTotals.map(r=>({
             "SiteID": r.s_ID,
             "SiteName": r.s_Name,
@@ -48,7 +58,8 @@ async function getDashboardSummary(req, res){
         
         let returnData = {
             "TotalCalls":callTotalsObject,
-            "CallsBreakdown":callBreakdownData
+            "CallsBreakdown":callBreakdownData,
+            "CallsByZone": callsbyZone
         }
         console.log(returnData);
         res.status(200).json(returnData);

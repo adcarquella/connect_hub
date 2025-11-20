@@ -48,7 +48,7 @@ function setupMqtt() {
 
     const brokerUrl = 'mqtt://mqtt.arquel.la:8883';
     const options = {
-        clientId: 'mqttx_819af243_connect_hub_api_locs2a',
+        clientId: 'mqttx_819af243_connect_hub_sa',
         username: 'vayyar',
         password: 'Arquella',
         clean: true
