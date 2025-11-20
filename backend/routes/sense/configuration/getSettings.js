@@ -17,7 +17,7 @@ async function sense_get_settings(req, res){
 
         const sql = `call get_sensor_settings_by_site('${siteCode}')`;
         const [sense_data] = await connection.promise().query(sql);
-        console.log(sense_data[0])
+        
         const returnData = sense_data[0].map(d=>{
 
             return {
@@ -49,7 +49,6 @@ async function sense_get_settings(req, res){
 
         })
 
-        console.log("sense_data", sense_data[0]);
         res.status(200).json(returnData);
   
     }
