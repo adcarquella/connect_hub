@@ -7,14 +7,17 @@ const crypto = require('crypto');
 const { getDashboardSummary } = require('./routes/dashboard/dashboardSummary');
 const { getCallData } = require('./routes/call_data/calldata');
 const { setupWebSocketServer } = require('./websockets/websocket');
+const { user_config } = require('./routes/user/user_config');
+const { dashboard_get_data } = require('./routes/sense/dashboard/getData');
+const {sense_get_settings} = require("./routes/sense/configuration/getSettings");
 
 const app = express();
 
 // Middleware
 app.use(bodyParser.json({ limit: '1mb' }));
 app.use(cors({
-  //origin: process.env.CLIENT_URL || '*',
-  origin: "https://connect.arquella.co.uk" || '*',
+  origin: process.env.CLIENT_URL || '*',
+  //origin: "https://connect.arquella.co.uk" || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -44,8 +47,38 @@ function decryptPayload(base64Payload) {
 
 // Routes
 app.get("/api/hello", (req, res) => res.json({ message: "Hello World" }));
+
+
+//-------------DASHBOARD------------------//
 app.post("/api/dashboard/summary", getDashboardSummary);
+
+
+//-------------CALL------------------//
 app.post("/api/call/getdata", getCallData);
+
+
+//-------------USER------------------//
+//endpoint to get the user
+app.post("/api/user/config", user_config);
+
+
+//-------------SENSE------------------//
+//endpoint to getsense dash data
+app.post("/api/sense/dashboard/data/get", dashboard_get_data);
+//endpoint to get the sense data for a room or device
+//app.post("/api/site/config/get", user_config);
+
+
+//-------------CONFIG------------------//
+//endpoint to get the list of rooms or devices
+app.post("/api/site/config/get", user_config);
+//endpoint to return the config for a site.
+//app.post("/api/user/config", user_config);
+//endpoint to add in a sense device.
+
+//get sense settings
+app.post("/api/device/sense/config/", sense_get_settings);
+
 
 app.post("/api/data", (req, res) => {
   try {
