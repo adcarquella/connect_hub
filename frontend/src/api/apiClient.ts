@@ -10,7 +10,7 @@ export async function sendEncryptedData(apiPath:string, data: object) {
   const plaintext = JSON.stringify(data);
   //const encrypted = encryptPayload(plaintext, ENCRYPTION_KEY_BASE64);
   const encrypted = data;
-
+  
   const res = await axios.post(`${API_BASE}/${apiPath}`, { payload: encrypted });
 
   //const decryptedResponse = decryptPayload(res.data.payload, ENCRYPTION_KEY_BASE64);
